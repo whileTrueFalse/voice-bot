@@ -34,6 +34,7 @@ class VoiceAI {
         this.setupPersonality();
         this.initializeNavigation();
         this.initializeWaveVisualizer();
+        this.initializeMobileOptimizations();
         
         // Check browser compatibility
         this.checkBrowserSupport();
@@ -80,6 +81,16 @@ class VoiceAI {
     }
 
     initializeSpeechRecognition() {
+        // Check for mobile device
+        this.isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        
+        // Check for HTTPS on mobile (required for microphone access)
+        if (this.isMobile && location.protocol !== 'https:' && location.hostname !== 'localhost') {
+            console.warn('HTTPS required for microphone access on mobile devices');
+            this.showMobileHTTPSWarning();
+            return;
+        }
+        
         if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
             const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
             this.recognition = new SpeechRecognition();
@@ -87,11 +98,17 @@ class VoiceAI {
             this.recognition.continuous = false;
             this.recognition.interimResults = false;
             this.recognition.lang = 'en-US';
+            
+            // Mobile-specific settings
+            if (this.isMobile) {
+                this.recognition.maxAlternatives = 1;
+                this.recognition.serviceURI = null; // Use device default
+            }
 
             this.recognition.onstart = () => {
                 this.isListening = true;
                 this.updateVoiceButton(true);
-                this.updateChatStatus('Listening...');
+                this.updateChatStatus(this.isMobile ? 'Listening... (Tap anywhere to stop)' : 'Listening...');
                 this.animateWaves(true);
             };
 
@@ -105,7 +122,19 @@ class VoiceAI {
             this.recognition.onerror = (event) => {
                 console.error('Speech recognition error:', event.error);
                 this.stopListening();
-                this.updateChatStatus('Error occurred. Please try again.');
+                
+                // Mobile-specific error messages
+                if (this.isMobile) {
+                    if (event.error === 'not-allowed') {
+                        this.updateChatStatus('Microphone permission denied. Please enable in browser settings.');
+                    } else if (event.error === 'no-speech') {
+                        this.updateChatStatus('No speech detected. Try speaking closer to your device.');
+                    } else {
+                        this.updateChatStatus('Voice error. Try typing your message instead.');
+                    }
+                } else {
+                    this.updateChatStatus('Error occurred. Please try again.');
+                }
             };
 
             this.recognition.onend = () => {
@@ -136,15 +165,42 @@ class VoiceAI {
             });
         }
 
-        // Voice button
+        // Voice button - improved mobile support
         if (this.voiceBtn) {
-            this.voiceBtn.addEventListener('click', () => {
+            // Add both click and touchstart for better mobile responsiveness
+            const handleVoiceToggle = (e) => {
+                e.preventDefault(); // Prevent double-firing on mobile
+                
                 if (this.isListening) {
                     this.stopListening();
                 } else {
+                    // Check mobile requirements before starting
+                    if (this.isMobile && !this.checkMobileRequirements()) {
+                        return;
+                    }
                     this.startListening();
                 }
-            });
+            };
+            
+            this.voiceBtn.addEventListener('click', handleVoiceToggle);
+            
+            // Add touch events for mobile
+            if (this.isMobile) {
+                this.voiceBtn.addEventListener('touchstart', handleVoiceToggle, { passive: false });
+                
+                // Add visual feedback for touch
+                this.voiceBtn.addEventListener('touchstart', () => {
+                    this.voiceBtn.style.transform = 'scale(0.95)';
+                });
+                
+                this.voiceBtn.addEventListener('touchend', () => {
+                    this.voiceBtn.style.transform = 'scale(1)';
+                });
+            }
+            
+            // Make button more accessible
+            this.voiceBtn.setAttribute('aria-label', 'Toggle voice input');
+            this.voiceBtn.setAttribute('role', 'button');
         }
 
         // Text input
@@ -249,11 +305,119 @@ Remember: You're representing someone who thinks deeply about technology, societ
 
     checkBrowserSupport() {
         if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
-            this.updateChatStatus('Speech recognition not supported in this browser');
+            if (this.isMobile) {
+                this.updateChatStatus('Voice input not supported on this mobile browser. Please use text input.');
+            } else {
+                this.updateChatStatus('Speech recognition not supported in this browser');
+            }
         }
         
         if (!window.speechSynthesis) {
             console.warn('Speech synthesis not supported');
+        }
+        
+        // Check for mobile-specific issues
+        if (this.isMobile) {
+            this.checkMobileRequirements();
+        }
+    }
+    
+    initializeMobileOptimizations() {
+        if (this.isMobile) {
+            // Add mobile-specific CSS class
+            document.body.classList.add('mobile-device');
+            
+            // Prevent zoom on double tap
+            let lastTouchEnd = 0;
+            document.addEventListener('touchend', (event) => {
+                const now = (new Date()).getTime();
+                if (now - lastTouchEnd <= 300) {
+                    event.preventDefault();
+                }
+                lastTouchEnd = now;
+            }, false);
+            
+            // Add viewport meta tag if not present
+            if (!document.querySelector('meta[name="viewport"]')) {
+                const viewport = document.createElement('meta');
+                viewport.name = 'viewport';
+                viewport.content = 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no';
+                document.head.appendChild(viewport);
+            }
+            
+            // Mobile-specific status messages
+            this.updateChatStatus('Tap microphone for voice input or type below');
+            
+            // Optimize text input for mobile
+            if (this.textInput) {
+                this.textInput.setAttribute('autocomplete', 'off');
+                this.textInput.setAttribute('autocorrect', 'off');
+                this.textInput.setAttribute('autocapitalize', 'sentences');
+                this.textInput.setAttribute('spellcheck', 'true');
+            }
+            
+            // Add mobile swipe gesture to close sidebar
+            this.addMobileSwipeGestures();
+        }
+    }
+    
+    addMobileSwipeGestures() {
+        let startX, startY, dist, threshold = 150;
+        
+        document.addEventListener('touchstart', (e) => {
+            const touch = e.touches[0];
+            startX = touch.clientX;
+            startY = touch.clientY;
+        });
+        
+        document.addEventListener('touchend', (e) => {
+            if (!startX || !startY) return;
+            
+            const touch = e.changedTouches[0];
+            const distX = touch.clientX - startX;
+            const distY = touch.clientY - startY;
+            
+            // Check if horizontal swipe
+            if (Math.abs(distX) > Math.abs(distY)) {
+                if (distX < -threshold && this.sidebar && this.sidebar.classList.contains('open')) {
+                    // Swipe left to close sidebar
+                    this.toggleSidebar();
+                }
+            }
+            
+            startX = startY = null;
+        });
+    }
+    
+    showMobileHTTPSWarning() {
+        const warningMessage = "Voice input requires HTTPS on mobile devices. Please use the text input below to chat.";
+        this.updateChatStatus(warningMessage);
+        
+        // Show a more prominent warning
+        if (this.voiceBtn) {
+            this.voiceBtn.style.opacity = '0.5';
+            this.voiceBtn.disabled = true;
+            this.voiceBtn.title = 'HTTPS required for voice input on mobile';
+        }
+    }
+    
+    checkMobileRequirements() {
+        // Additional mobile checks
+        if (location.protocol !== 'https:' && location.hostname !== 'localhost') {
+            this.showMobileHTTPSWarning();
+            return false;
+        }
+        
+        // Test for microphone availability (doesn't trigger permission)
+        if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+            // Modern API available
+            return true;
+        } else if (navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia) {
+            // Legacy API available
+            return true;
+        } else {
+            this.updateChatStatus('Microphone access not available on this device. Please use text input.');
+            return false;
         }
     }
 
@@ -294,8 +458,36 @@ Remember: You're representing someone who thinks deeply about technology, societ
 
     // Voice recognition methods
     startListening() {
-        if (this.recognition && !this.isListening) {
+        if (!this.recognition || this.isListening) {
+            return;
+        }
+        
+        try {
+            // Mobile-specific preparation
+            if (this.isMobile) {
+                // Ensure we have user permission and proper context
+                if (location.protocol !== 'https:' && location.hostname !== 'localhost') {
+                    this.showMobileHTTPSWarning();
+                    return;
+                }
+                
+                // Add mobile-specific timeout
+                setTimeout(() => {
+                    if (this.isListening && this.recognition) {
+                        this.recognition.stop();
+                        this.updateChatStatus('Voice timeout. Please try again or use text input.');
+                    }
+                }, 10000); // 10 second timeout for mobile
+            }
+            
             this.recognition.start();
+        } catch (error) {
+            console.error('Error starting speech recognition:', error);
+            this.updateChatStatus('Voice input unavailable. Please use text input.');
+            
+            if (this.isMobile) {
+                this.showTextInputFallback();
+            }
         }
     }
 
@@ -305,8 +497,23 @@ Remember: You're representing someone who thinks deeply about technology, societ
         }
         this.isListening = false;
         this.updateVoiceButton(false);
-        this.updateChatStatus('Ready to listen');
+        this.updateChatStatus(this.isMobile ? 'Ready (Voice or Text)' : 'Ready to listen');
         this.animateWaves(false);
+    }
+    
+    showTextInputFallback() {
+        // Highlight text input for mobile users when voice fails
+        if (this.textInput) {
+            this.textInput.focus();
+            this.textInput.placeholder = "Voice unavailable - type your message here";
+            
+            // Add visual emphasis
+            this.textInput.style.border = "2px solid var(--accent-primary)";
+            setTimeout(() => {
+                this.textInput.style.border = "";
+                this.textInput.placeholder = "Type your message...";
+            }, 3000);
+        }
     }
 
     updateVoiceButton(isListening) {
