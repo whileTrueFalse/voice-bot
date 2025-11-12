@@ -419,7 +419,12 @@ Remember: You're representing someone who thinks deeply about technology, societ
 
     async getAIResponseWithTTS(message) {
         try {
-            const response = await fetch('/api/chat', {
+            // Use Netlify function endpoint
+            const apiEndpoint = window.location.hostname.includes('netlify') 
+                ? '/.netlify/functions/chat' 
+                : '/api/chat';
+            
+            const response = await fetch(apiEndpoint, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
