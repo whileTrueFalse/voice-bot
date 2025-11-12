@@ -4,10 +4,10 @@
   "description": "Interactive AI voice bot that responds to personal questions with speech recognition and text-to-speech capabilities",
   "main": "index.html",
   "scripts": {
-    "start": "node start_services.js",
+    "start": "node server.js",
+    "dev": "node start_services.js",
     "server": "node server.js",
     "maya": "python maya_voice_service.py",
-    "dev": "node start_services.js",
     "build": "echo 'Installing Python dependencies...' && pip install torch transformers snac soundfile numpy flask flask-cors accelerate",
     "deploy:netlify": "netlify deploy --prod",
     "deploy:vercel": "vercel --prod",

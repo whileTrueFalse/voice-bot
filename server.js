@@ -3,7 +3,7 @@ const path = require('path');
 const fetch = require('node-fetch');
 require('dotenv').config();
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
 // Middleware
 app.use(express.json());
@@ -1097,13 +1097,22 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
 });
 
+// Catch-all handler: send back index.html for any non-API routes
+app.get('*', (req, res) => {
+    // Don't catch API routes
+    if (req.path.startsWith('/api/')) {
+        return res.status(404).json({ error: 'API endpoint not found' });
+    }
+    res.sendFile(path.join(__dirname, 'index.html'));
+});
+
 app.listen(PORT, () => {
-    console.log(`🎤 Voice Bot Server Running!`);
-    console.log(`📱 Open your browser and go to: http://localhost:${PORT}`);
+    console.log(`🎤 Voice Bot Server Running on Port ${PORT}!`);
     console.log(`🔊 Features available:`);
     console.log(`   ✅ Voice recognition (click microphone)`);
     console.log(`   ✅ Text input (type and press Enter)`);
-    console.log(`   ✅ AI responses via Maya1 model`);
+    console.log(`   ✅ AI responses via OpenAI GPT-4o`);
     console.log(`   ✅ Text-to-speech output`);
-    console.log(`🛑 Press Ctrl+C to stop the server`);
+    console.log(`   ✅ Smart clarifications & analytics`);
+    console.log(`🌐 Server ready for production!`);
 });
