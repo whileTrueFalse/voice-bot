@@ -25,7 +25,7 @@ This isn't just another chatbot - it's a **sophisticated AI conversation system*
 
 ## 🚀 **Live Demo**
 
-**🌐 Try it now:** [Your Deployed URL Here]
+**🌐 Try it now:** https://samerths-voicebot-v2.onrender.com/
 
 **Quick Test Commands:**
 - 🎤 Ask: *"What's your superpower?"*
