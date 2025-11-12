@@ -1098,12 +1098,16 @@ app.get('/', (req, res) => {
 });
 
 // Catch-all handler: send back index.html for any non-API routes
-app.get('*', (req, res) => {
+app.use((req, res, next) => {
     // Don't catch API routes
     if (req.path.startsWith('/api/')) {
         return res.status(404).json({ error: 'API endpoint not found' });
     }
-    res.sendFile(path.join(__dirname, 'index.html'));
+    // For any other route, serve index.html (SPA support)
+    if (req.method === 'GET') {
+        return res.sendFile(path.join(__dirname, 'index.html'));
+    }
+    next();
 });
 
 app.listen(PORT, () => {
