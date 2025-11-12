@@ -167,10 +167,8 @@ class VoiceAI {
 
         // Voice button - improved mobile support
         if (this.voiceBtn) {
-            // Add both click and touchstart for better mobile responsiveness
+            // Simple click handler that works on both desktop and mobile
             const handleVoiceToggle = (e) => {
-                e.preventDefault(); // Prevent double-firing on mobile
-                
                 if (this.isListening) {
                     this.stopListening();
                 } else {
@@ -182,23 +180,10 @@ class VoiceAI {
                 }
             };
             
+            // Use only click event - it works on both desktop and mobile
             this.voiceBtn.addEventListener('click', handleVoiceToggle);
             
-            // Add touch events for mobile
-            if (this.isMobile) {
-                this.voiceBtn.addEventListener('touchstart', handleVoiceToggle, { passive: false });
-                
-                // Add visual feedback for touch
-                this.voiceBtn.addEventListener('touchstart', () => {
-                    this.voiceBtn.style.transform = 'scale(0.95)';
-                });
-                
-                this.voiceBtn.addEventListener('touchend', () => {
-                    this.voiceBtn.style.transform = 'scale(1)';
-                });
-            }
-            
-            // Make button more accessible
+            // Add visual feedback for touch devices via CSS
             this.voiceBtn.setAttribute('aria-label', 'Toggle voice input');
             this.voiceBtn.setAttribute('role', 'button');
         }
@@ -327,21 +312,11 @@ Remember: You're representing someone who thinks deeply about technology, societ
             // Add mobile-specific CSS class
             document.body.classList.add('mobile-device');
             
-            // Prevent zoom on double tap
-            let lastTouchEnd = 0;
-            document.addEventListener('touchend', (event) => {
-                const now = (new Date()).getTime();
-                if (now - lastTouchEnd <= 300) {
-                    event.preventDefault();
-                }
-                lastTouchEnd = now;
-            }, false);
-            
             // Add viewport meta tag if not present
             if (!document.querySelector('meta[name="viewport"]')) {
                 const viewport = document.createElement('meta');
                 viewport.name = 'viewport';
-                viewport.content = 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no';
+                viewport.content = 'width=device-width, initial-scale=1.0, user-scalable=yes';
                 document.head.appendChild(viewport);
             }
             
@@ -356,37 +331,40 @@ Remember: You're representing someone who thinks deeply about technology, societ
                 this.textInput.setAttribute('spellcheck', 'true');
             }
             
-            // Add mobile swipe gesture to close sidebar
+            // Add mobile swipe gesture to close sidebar (non-blocking)
             this.addMobileSwipeGestures();
         }
     }
     
     addMobileSwipeGestures() {
-        let startX, startY, dist, threshold = 150;
+        let startX, startY, threshold = 150;
         
-        document.addEventListener('touchstart', (e) => {
-            const touch = e.touches[0];
-            startX = touch.clientX;
-            startY = touch.clientY;
-        });
-        
-        document.addEventListener('touchend', (e) => {
-            if (!startX || !startY) return;
+        // Only add swipe gestures on sidebar area to avoid interfering with scrolling
+        if (this.sidebar) {
+            this.sidebar.addEventListener('touchstart', (e) => {
+                const touch = e.touches[0];
+                startX = touch.clientX;
+                startY = touch.clientY;
+            }, { passive: true });
             
-            const touch = e.changedTouches[0];
-            const distX = touch.clientX - startX;
-            const distY = touch.clientY - startY;
-            
-            // Check if horizontal swipe
-            if (Math.abs(distX) > Math.abs(distY)) {
-                if (distX < -threshold && this.sidebar && this.sidebar.classList.contains('open')) {
-                    // Swipe left to close sidebar
-                    this.toggleSidebar();
+            this.sidebar.addEventListener('touchend', (e) => {
+                if (!startX || !startY) return;
+                
+                const touch = e.changedTouches[0];
+                const distX = touch.clientX - startX;
+                const distY = touch.clientY - startY;
+                
+                // Check if horizontal swipe (and not vertical scroll)
+                if (Math.abs(distX) > Math.abs(distY) && Math.abs(distX) > threshold) {
+                    if (distX < -threshold && this.sidebar.classList.contains('open')) {
+                        // Swipe left to close sidebar
+                        this.toggleSidebar();
+                    }
                 }
-            }
-            
-            startX = startY = null;
-        });
+                
+                startX = startY = null;
+            }, { passive: true });
+        }
     }
     
     showMobileHTTPSWarning() {

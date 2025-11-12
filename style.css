@@ -55,6 +55,14 @@ body {
     color: var(--text-primary);
     height: 100vh;
     overflow: hidden;
+    -webkit-overflow-scrolling: touch; /* Enable smooth scrolling on iOS */
+}
+
+/* Mobile device body adjustments */
+body.mobile-device {
+    overflow: auto; /* Allow scrolling on mobile */
+    height: auto;
+    min-height: 100vh;
 }
 
 kbd {
@@ -73,6 +81,14 @@ kbd {
     display: flex;
     height: 100vh;
     width: 100vw;
+    position: relative;
+}
+
+/* Mobile app container adjustments */
+body.mobile-device .app-container {
+    height: auto;
+    min-height: 100vh;
+    flex-direction: column;
 }
 
 /* ============ SIDEBAR ============ */
@@ -687,6 +703,10 @@ kbd {
     
     .main-content {
         width: 100%;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+        height: auto;
+        min-height: 100vh;
     }
     
     .welcome-container {
@@ -708,7 +728,6 @@ kbd {
         width: 56px;
         height: 56px;
         font-size: 1.2rem;
-        touch-action: manipulation; /* Prevent double-tap zoom */
         -webkit-tap-highlight-color: rgba(0, 0, 0, 0); /* Remove tap highlight */
     }
     
@@ -722,14 +741,12 @@ kbd {
         font-size: 16px; /* Prevent zoom on iOS */
         min-height: 48px;
         padding: var(--spacing-md);
-        touch-action: manipulation;
     }
     
     /* Enhanced mobile send button */
     .send-btn {
         width: 48px;
         height: 48px;
-        touch-action: manipulation;
         -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
     }
     
@@ -741,7 +758,6 @@ kbd {
     .action-btn {
         width: 44px;
         height: 44px;
-        touch-action: manipulation;
         -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
     }
     
@@ -768,7 +784,6 @@ kbd {
     .nav-item {
         padding: var(--spacing-md) var(--spacing-lg);
         min-height: 48px;
-        touch-action: manipulation;
     }
     
     .nav-item:active {
