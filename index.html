@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voice AI Assistant - Sam's Digital Clone</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <i class="fas fa-microphone-alt"></i>
+                    <span>Voice AI</span>
+                </div>
+                <button class="sidebar-toggle" id="sidebarToggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+
+            <div class="sidebar-content">
+                <!-- New Chat Button -->
+                <button class="new-chat-btn" id="newChatBtn">
+                    <i class="fas fa-plus"></i>
+                    <span>New Voice Chat</span>
+                </button>
+
+                <!-- Navigation Menu -->
+                <nav class="nav-menu">
+                    <div class="nav-section">
+                        <h3>Voice Sessions</h3>
+                        <ul class="nav-list">
+                            <li class="nav-item active" id="homeNavItem">
+                                <i class="fas fa-home"></i>
+                                <span>Welcome</span>
+                            </li>
+                            <li class="nav-item" id="chatNavItem">
+                                <i class="fas fa-comments"></i>
+                                <span>Voice Chat</span>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div class="nav-section">
+                        <h3>Features</h3>
+                        <ul class="nav-list">
+                            <li class="nav-item">
+                                <i class="fas fa-microphone"></i>
+                                <span>Voice Recognition</span>
+                            </li>
+                            <li class="nav-item">
+                                <i class="fas fa-brain"></i>
+                                <span>AI Response</span>
+                            </li>
+                            <li class="nav-item">
+                                <i class="fas fa-volume-up"></i>
+                                <span>Natural TTS</span>
+                            </li>
+                        </ul>
+                    </div>
+                </nav>
+
+                <!-- Developer Info -->
+                <div class="sidebar-footer">
+                    <div class="dev-info">
+                        <div class="dev-avatar">
+                            <span>S</span>
+                        </div>
+                        <div class="dev-details">
+                            <div class="dev-name">Samarth</div>
+                            <div class="dev-role">AI Developer</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- Home Page -->
+            <div class="content-page" id="homePage">
+                <div class="welcome-container">
+                    <div class="welcome-header">
+                        <div class="ai-logo">
+                            <i class="fas fa-robot"></i>
+                        </div>
+                        <h1>How can I help you today?</h1>
+                        <p>This voice AI will listen to your questions and provide intelligent responses using advanced AI technology.</p>
+                    </div>
+
+                    <div class="feature-cards">
+                        <div class="feature-card">
+                            <div class="feature-icon">
+                                <i class="fas fa-microphone"></i>
+                            </div>
+                            <h3>Voice Input</h3>
+                            <p>Speak naturally and I'll understand your questions and requests</p>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-icon">
+                                <i class="fas fa-brain"></i>
+                            </div>
+                            <h3>AI Processing</h3>
+                            <p>Advanced AI analyzes your input and generates intelligent responses</p>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-icon">
+                                <i class="fas fa-volume-up"></i>
+                            </div>
+                            <h3>Natural Voice</h3>
+                            <p>High-quality text-to-speech for natural conversation</p>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-icon">
+                                <i class="fas fa-chart-line"></i>
+                            </div>
+                            <h3>Analytics Dashboard</h3>
+                            <p>Press <kbd>Alt + A</kbd> to view real-time conversation analytics and insights</p>
+                        </div>
+                    </div>
+
+                    <div class="action-buttons">
+                        <button class="primary-btn" id="startVoiceChatBtn">
+                            <i class="fas fa-microphone"></i>
+                            Start Voice Chat
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Chat Interface -->
+            <div class="content-page" id="chatPage" style="display: none;">
+                <div class="chat-header">
+                    <div class="chat-title">
+                        <h2>Voice Assistant Chat</h2>
+                        <span class="chat-status" id="chatStatus">Ready to listen</span>
+                    </div>
+                    <div class="chat-actions">
+                        <button class="action-btn" id="clearChatBtn" title="Clear Chat">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                        <button class="action-btn" id="muteBtn" title="Mute/Unmute">
+                            <i class="fas fa-volume-up"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="chat-container" id="chatContainer">
+                    <div class="welcome-message">
+                        <div class="message ai-message">
+                            <div class="message-avatar">
+                                <i class="fas fa-robot"></i>
+                            </div>
+                            <div class="message-content">
+                                <div class="message-text">
+                                    Hello! I'm your voice AI assistant. Click the microphone to start speaking, or type your message below.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Voice Input Section -->
+                <div class="voice-input-area">
+                    <!-- Wave Visualizer -->
+                    <div class="wave-visualizer" id="waveVisualizer">
+                        <div class="wave-bars" id="waveBars"></div>
+                    </div>
+
+                    <!-- Input Controls -->
+                    <div class="input-controls">
+                        <button class="voice-btn" id="voiceBtn" title="Click to speak">
+                            <i class="fas fa-microphone"></i>
+                        </button>
+                        
+                        <div class="text-input-container">
+                            <input type="text" id="textInput" placeholder="Type your message or click the mic to speak..." maxlength="500">
+                            <button class="send-btn" id="sendBtn" title="Send message">
+                                <i class="fas fa-paper-plane"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,46 @@
+{
+  "name": "ai-voice-bot",
+  "version": "1.0.0",
+  "description": "Interactive AI voice bot that responds to personal questions with speech recognition and text-to-speech capabilities",
+  "main": "index.html",
+  "scripts": {
+    "start": "node start_services.js",
+    "server": "node server.js",
+    "maya": "python maya_voice_service.py",
+    "dev": "node start_services.js",
+    "build": "echo 'Installing Python dependencies...' && pip install torch transformers snac soundfile numpy flask flask-cors accelerate",
+    "deploy:netlify": "netlify deploy --prod",
+    "deploy:vercel": "vercel --prod",
+    "install-deps": "npm install && pip install torch transformers snac soundfile numpy flask flask-cors accelerate"
+  },
+  "keywords": [
+    "voice-bot",
+    "ai",
+    "speech-recognition",
+    "text-to-speech",
+    "chatbot",
+    "web-app",
+    "javascript"
+  ],
+  "author": "Voice Bot Developer",
+  "license": "MIT",
+  "devDependencies": {
+    "serve": "^14.2.1"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/voice-agent.git"
+  },
+  "bugs": {
+    "url": "https://github.com/yourusername/voice-agent/issues"
+  },
+  "homepage": "https://github.com/yourusername/voice-agent#readme",
+  "dependencies": {
+    "dotenv": "^17.2.3",
+    "express": "^5.1.0",
+    "node-fetch": "^2.7.0"
+  }
+}

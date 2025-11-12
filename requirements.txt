@@ -1,0 +1,12 @@
+# Python dependencies for Maya1 Voice Service
+torch>=2.0.0
+transformers>=4.30.0
+snac>=1.0.0
+soundfile>=0.12.0
+numpy>=1.21.0
+flask>=2.3.0
+flask-cors>=4.0.0
+accelerate>=0.20.0
+einops>=0.7.0
+huggingface-hub>=0.16.0
+safetensors>=0.3.0
