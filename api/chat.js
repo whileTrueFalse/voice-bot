@@ -16,13 +16,16 @@ export default async function handler(req, res) {
     try {
         const { message, history = [] } = req.body;
         
+        console.log('Received request:', { message: message?.substring(0, 50) + '...', historyLength: history.length });
+        
         if (!message) {
             return res.status(400).json({ error: 'Message is required' });
         }
 
-        // Try Hugging Face API first, then fallback to OpenAI if available
-        const HF_API_KEY = process.env.HUGGINGFACE_API_TOKEN || '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';
+        // Try OpenAI API first, then fallback to local responses
         const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
+        
+        console.log('API Key available:', !!OPENAI_API_KEY); // Debug log
         
         // Prepare the conversation context
         const systemPrompt = `You are a conversational AI with a distinct personality. When people ask about your background, experiences, or characteristics, respond naturally as if talking about yourself. Be authentic, thoughtful, and engaging.
@@ -39,50 +42,11 @@ Your approach: You prefer engaging with complex topics thoughtfully rather than 
 
 Respond conversationally and personally. Keep answers under 150 words. Be warm and genuine.`;
 
-        // Try Hugging Face Maya1 API first
-        if (HF_API_KEY) {
+        // Try OpenAI API first
+        if (OPENAI_API_KEY && OPENAI_API_KEY !== 'your_openai_key_here') {
             try {
-                const conversationHistory = history.slice(-4).map(h => `${h.role === 'user' ? 'Human' : 'Assistant'}: ${h.content}`).join('\n');
+                console.log('Attempting OpenAI API call...'); // Debug log
                 
-                // Voice characteristics for Maya1 model - 22-year-old Indian male
-                const voiceDescription = "22 year old male of Indian origin with good English proficiency, medium pace speaking style, and good depth in voice. Conversational and warm tone.";
-                
-                // Build Maya1 compatible prompt with voice characteristics
-                const prompt = `<description="${voiceDescription}"> ${systemPrompt}\n\n${conversationHistory}\nHuman: ${message}\nAssistant:`;
-
-                const hfResponse = await fetch('https://api-inference.huggingface.co/models/maya-research/maya1', {
-                    method: 'POST',
-                    headers: {
-                        'Authorization': `Bearer ${HF_API_KEY}`,
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        inputs: prompt,
-                        parameters: {
-                            max_new_tokens: 150,
-                            min_new_tokens: 20,
-                            temperature: 0.7,
-                            top_p: 0.9,
-                            do_sample: true,
-                            repetition_penalty: 1.1,
-                            return_full_text: false
-                        }
-                    }),
-                });
-
-                if (hfResponse.ok) {
-                    const hfData = await hfResponse.json();
-                    const aiResponse = hfData[0]?.generated_text?.trim() || generateFallbackResponse(message);
-                    return res.status(200).json({ response: aiResponse });
-                }
-            } catch (hfError) {
-                console.error('Hugging Face API error:', hfError);
-            }
-        }
-
-        // Fallback to OpenAI if available
-        if (OPENAI_API_KEY) {
-            try {
                 const messages = [
                     { role: "system", content: systemPrompt },
                     ...history.slice(-6),
@@ -96,32 +60,43 @@ Respond conversationally and personally. Keep answers under 150 words. Be warm a
                         'Content-Type': 'application/json',
                     },
                     body: JSON.stringify({
-                        model: 'gpt-3.5-turbo',
+                        model: 'gpt-4o',
                         messages: messages,
                         max_tokens: 200,
                         temperature: 0.7,
                     }),
                 });
 
+                console.log('OpenAI response status:', response.status); // Debug log
+
                 if (response.ok) {
                     const data = await response.json();
                     const aiResponse = data.choices[0]?.message?.content || generateFallbackResponse(message);
+                    console.log('OpenAI success, response length:', aiResponse.length); // Debug log
                     return res.status(200).json({ response: aiResponse });
+                } else {
+                    const errorData = await response.text();
+                    console.error('OpenAI API error:', response.status, errorData);
                 }
             } catch (openaiError) {
-                console.error('OpenAI API error:', openaiError);
+                console.error('OpenAI API exception:', openaiError);
             }
+        } else {
+            console.log('No valid OpenAI API key found'); // Debug log
         }
 
-        // If both APIs fail, use fallback response
+        // If API fails, use fallback response
+        console.log('Using fallback response'); // Debug log
         const aiResponse = generateFallbackResponse(message);
 
         return res.status(200).json({ response: aiResponse });
 
     } catch (error) {
         console.error('API Error:', error);
+        const fallbackResponse = generateFallbackResponse(req.body?.message || '');
+        console.log('Exception fallback response'); // Debug log
         return res.status(200).json({ 
-            response: generateFallbackResponse(req.body?.message || '') 
+            response: fallbackResponse 
         });
     }
 }
