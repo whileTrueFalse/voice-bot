@@ -169,7 +169,16 @@ class VoiceAI {
         if (this.voiceBtn) {
             // Simple click handler that works on both desktop and mobile
             const handleVoiceToggle = (e) => {
-                if (this.isListening) {
+        // Initialize mobile TTS on first user interaction
+        if (this.isMobile && !this.mobileTTSInitialized) {
+            this.initializeMobileTTS();
+            // Test TTS immediately to give user feedback
+            setTimeout(() => {
+                if (!this.isMuted) {
+                    this.speak('Voice output ready');
+                }
+            }, 1000);
+        }                if (this.isListening) {
                     this.stopListening();
                 } else {
                     // Check mobile requirements before starting
@@ -321,7 +330,7 @@ Remember: You're representing someone who thinks deeply about technology, societ
             }
             
             // Mobile-specific status messages
-            this.updateChatStatus('Tap microphone for voice input or type below');
+            this.updateChatStatus('Tap microphone for voice input or type below. Voice output will be enabled on first interaction.');
             
             // Optimize text input for mobile
             if (this.textInput) {
@@ -539,6 +548,11 @@ Remember: You're representing someone who thinks deeply about technology, societ
 
     async sendMessage(message) {
         const startTime = Date.now();
+        
+        // Initialize mobile TTS on first message (user gesture)
+        if (this.isMobile && !this.mobileTTSInitialized) {
+            this.initializeMobileTTS();
+        }
         
         try {
             // Track analytics
@@ -936,11 +950,31 @@ Remember: You're representing someone who thinks deeply about technology, societ
         if (this.synthesis) {
             const voices = this.synthesis.getVoices();
             if (voices.length === 0) {
+                // Wait for voices to load (especially important on mobile)
                 this.synthesis.addEventListener('voiceschanged', () => {
                     this.logAvailableVoices();
+                    // Initialize mobile TTS once voices are loaded
+                    if (this.isMobile) {
+                        setTimeout(() => this.initializeMobileTTS(), 500);
+                    }
                 }, { once: true });
+                
+                // Fallback timeout for mobile devices
+                if (this.isMobile) {
+                    setTimeout(() => {
+                        const voices = this.synthesis.getVoices();
+                        if (voices.length > 0) {
+                            this.logAvailableVoices();
+                            this.initializeMobileTTS();
+                        }
+                    }, 1000);
+                }
             } else {
                 this.logAvailableVoices();
+                // Initialize mobile TTS if voices are already available
+                if (this.isMobile) {
+                    setTimeout(() => this.initializeMobileTTS(), 100);
+                }
             }
         }
     }
@@ -951,21 +985,37 @@ Remember: You're representing someone who thinks deeply about technology, societ
     }
 
     async playOpenAIAudio(base64Audio, fallbackText) {
-        if (this.isMuted) return;
+        if (this.isMuted) {
+            console.log('Audio is muted, skipping TTS');
+            return;
+        }
+        
+        console.log('Playing audio - Mobile:', this.isMobile, 'Base64Audio:', !!base64Audio);
         
         try {
             if (base64Audio) {
+                console.log('Attempting to play OpenAI TTS audio');
                 // Play OpenAI TTS audio
                 const audioBlob = new Blob([Uint8Array.from(atob(base64Audio), c => c.charCodeAt(0))], { type: 'audio/mpeg' });
                 const audio = new Audio();
                 audio.src = URL.createObjectURL(audioBlob);
+                
+                // Mobile audio play issues
+                if (this.isMobile) {
+                    audio.load(); // Preload on mobile
+                    console.log('Mobile audio loaded, attempting play...');
+                }
+                
                 await audio.play();
+                console.log('OpenAI TTS audio played successfully');
             } else {
+                console.log('No OpenAI audio, falling back to browser TTS');
                 // Fallback to browser TTS
                 this.speak(fallbackText);
             }
         } catch (error) {
             console.error('Error playing audio:', error);
+            console.log('Falling back to browser TTS due to error');
             if (fallbackText) {
                 this.speak(fallbackText);
             }
@@ -975,28 +1025,102 @@ Remember: You're representing someone who thinks deeply about technology, societ
     speak(text) {
         if (this.isMuted || !this.synthesis || !text) return;
 
+        // Mobile speech synthesis fixes
+        if (this.isMobile) {
+            // Ensure speech synthesis is ready on mobile
+            if (!this.mobileTTSInitialized) {
+                this.initializeMobileTTS();
+            }
+            
+            // Check if voices are available (mobile timing issue)
+            const voices = this.synthesis.getVoices();
+            if (voices.length === 0) {
+                console.log('Voices not ready on mobile, waiting...');
+                setTimeout(() => this.speak(text), 100);
+                return;
+            }
+        }
+
         this.synthesis.cancel();
         
         const utterance = new SpeechSynthesisUtterance(this.addNaturalPauses(text));
         
-        // Find best voice
+        // Find best voice with mobile preferences
         const voices = this.synthesis.getVoices();
-        const preferredVoice = voices.find(voice => 
-            voice.name.includes('Female') || 
-            voice.name.includes('Zira') || 
-            voice.name.includes('Samantha') ||
-            (voice.lang.startsWith('en') && voice.localService)
-        ) || voices.find(voice => voice.lang.startsWith('en')) || voices[0];
+        let preferredVoice;
+        
+        if (this.isMobile) {
+            // Mobile-optimized voice selection
+            preferredVoice = voices.find(voice => 
+                voice.localService && voice.lang.startsWith('en')
+            ) || voices.find(voice => 
+                voice.lang.startsWith('en') && 
+                (voice.name.includes('Google') || voice.name.includes('Android'))
+            ) || voices.find(voice => voice.lang.startsWith('en'));
+        } else {
+            // Desktop voice preferences
+            preferredVoice = voices.find(voice => 
+                voice.name.includes('Female') || 
+                voice.name.includes('Zira') || 
+                voice.name.includes('Samantha') ||
+                (voice.lang.startsWith('en') && voice.localService)
+            ) || voices.find(voice => voice.lang.startsWith('en'));
+        }
         
         if (preferredVoice) {
             utterance.voice = preferredVoice;
+            console.log('Using voice:', preferredVoice.name, '(Mobile:', this.isMobile, ')');
         }
         
-        utterance.rate = this.voiceSettings.rate;
-        utterance.pitch = this.voiceSettings.pitch;
-        utterance.volume = this.voiceSettings.volume;
+        // Mobile-optimized voice settings
+        if (this.isMobile) {
+            utterance.rate = Math.min(this.voiceSettings.rate, 1.0); // Slower on mobile
+            utterance.pitch = this.voiceSettings.pitch;
+            utterance.volume = 1.0; // Full volume on mobile
+        } else {
+            utterance.rate = this.voiceSettings.rate;
+            utterance.pitch = this.voiceSettings.pitch;
+            utterance.volume = this.voiceSettings.volume;
+        }
         
-        this.synthesis.speak(utterance);
+        // Mobile-specific error handling
+        utterance.onerror = (event) => {
+            console.error('Speech synthesis error:', event.error);
+            if (this.isMobile) {
+                this.updateChatStatus('Voice output unavailable on this device');
+            }
+        };
+        
+        utterance.onstart = () => {
+            if (this.isMobile) {
+                console.log('TTS started on mobile');
+            }
+        };
+        
+        try {
+            this.synthesis.speak(utterance);
+        } catch (error) {
+            console.error('Failed to start speech synthesis:', error);
+            if (this.isMobile) {
+                this.updateChatStatus('Voice output failed - text response shown instead');
+            }
+        }
+    }
+    
+    initializeMobileTTS() {
+        if (this.isMobile && !this.mobileTTSInitialized) {
+            // Test TTS with a silent utterance to "wake up" the speech synthesis
+            const testUtterance = new SpeechSynthesisUtterance('');
+            testUtterance.volume = 0;
+            
+            try {
+                this.synthesis.speak(testUtterance);
+                this.mobileTTSInitialized = true;
+                console.log('Mobile TTS initialized');
+            } catch (error) {
+                console.error('Failed to initialize mobile TTS:', error);
+            }
+        }
     }
 
     addNaturalPauses(text) {
