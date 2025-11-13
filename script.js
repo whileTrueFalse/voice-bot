@@ -64,6 +64,8 @@ class VoiceAI {
         this.homeNavItem = document.getElementById('homeNavItem');
         this.chatNavItem = document.getElementById('chatNavItem');
         this.themeToggle = document.getElementById('themeToggle');
+        this.showTutorialBtn = document.getElementById('showTutorialBtn');
+        this.quickHelpBtn = document.getElementById('quickHelpBtn');
         
         // Page elements
         this.homePage = document.getElementById('homePage');
@@ -256,6 +258,19 @@ class VoiceAI {
             this.chatNavItem.addEventListener('click', () => {
                 this.showChatPage();
                 this.setActiveNavItem('chat');
+            });
+        }
+
+        // Tutorial and help buttons
+        if (this.showTutorialBtn) {
+            this.showTutorialBtn.addEventListener('click', () => {
+                this.showWelcomeTutorial();
+            });
+        }
+
+        if (this.quickHelpBtn) {
+            this.quickHelpBtn.addEventListener('click', () => {
+                this.showQuickHelpMenu();
             });
         }
     }
@@ -1375,10 +1390,24 @@ Press Alt+A anytime to view this dashboard!
             font-family: inherit; font-size: 11px;
         `;
         
+        const tutorialBtn = document.createElement('button');
+        tutorialBtn.textContent = '📚 Reset Tutorial';
+        tutorialBtn.style.cssText = `
+            position: absolute; top: 10px; right: 150px; 
+            background: #6366f1; color: white; border: none; 
+            padding: 8px 16px; border-radius: 5px; cursor: pointer;
+            font-family: inherit; font-size: 11px;
+        `;
+        
         closeBtn.onclick = () => document.body.removeChild(modal);
+        tutorialBtn.onclick = () => {
+            document.body.removeChild(modal);
+            this.resetAndShowTutorial();
+        };
         
         content.style.position = 'relative';
         content.appendChild(closeBtn);
+        content.appendChild(tutorialBtn);
         modal.appendChild(content);
         document.body.appendChild(modal);
         
@@ -1442,15 +1471,44 @@ Press Alt+A anytime to view this dashboard!
 
     // Tutorial system for new users
     initializeTutorialSystem() {
-        // Check if user has seen tutorial
-        const hasSeenTutorial = localStorage.getItem('voiceAI_tutorialSeen');
+        // Check if user has seen tutorial recently (within 24 hours)
+        const lastTutorialTime = localStorage.getItem('voiceAI_lastTutorial');
+        const now = Date.now();
+        const oneDayMs = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
         
-        if (!hasSeenTutorial) {
+        const shouldShowTutorial = !lastTutorialTime || 
+                                 (now - parseInt(lastTutorialTime)) > oneDayMs;
+        
+        if (shouldShowTutorial) {
             // Show tutorial after a brief delay
             setTimeout(() => {
                 this.showWelcomeTutorial();
             }, 2000);
+        } else {
+            // Show a quick help tip instead
+            setTimeout(() => {
+                this.showQuickTip("💡 Welcome back! Press F1 for tutorial, click 'Show Tutorial' in sidebar, or try Ctrl+? for quick help.");
+            }, 1500);
         }
+        
+        // Add keyboard shortcuts for tutorial
+        this.initializeTutorialShortcuts();
+    }
+
+    initializeTutorialShortcuts() {
+        document.addEventListener('keydown', (event) => {
+            // F1 key to show tutorial
+            if (event.key === 'F1') {
+                event.preventDefault();
+                this.showWelcomeTutorial();
+            }
+            
+            // Ctrl + ? for quick help
+            if (event.ctrlKey && event.key === '?') {
+                event.preventDefault();
+                this.showQuickHelpMenu();
+            }
+        });
     }
 
     showWelcomeTutorial() {
@@ -1495,6 +1553,9 @@ Press Alt+A anytime to view this dashboard!
                         <div class="progress-fill"></div>
                     </div>
                     <span class="progress-text">1 of 4</span>
+                </div>
+                <div class="tutorial-footer">
+                    <small>💡 Press <kbd>F1</kbd> anytime to show this tutorial again</small>
                 </div>
             </div>
         `;
@@ -1542,8 +1603,8 @@ Press Alt+A anytime to view this dashboard!
     }
 
     completeTutorial() {
-        // Mark tutorial as seen
-        localStorage.setItem('voiceAI_tutorialSeen', 'true');
+        // Update last tutorial time instead of permanently marking as seen
+        localStorage.setItem('voiceAI_lastTutorial', Date.now().toString());
         
         // Remove tutorial overlay
         const overlay = document.querySelector('.tutorial-overlay');
@@ -1556,7 +1617,7 @@ Press Alt+A anytime to view this dashboard!
         
         // Show a helpful tip
         setTimeout(() => {
-            this.showQuickTip("💡 Try asking me something! You can say 'What's your superpower?' or any question you'd like.");
+            this.showQuickTip("💡 Great! Remember: Press F1 anytime to see the tutorial again, or Ctrl+? for quick help.");
         }, 1000);
     }
 
@@ -1595,6 +1656,83 @@ Press Alt+A anytime to view this dashboard!
         } else if (totalQuestions === 10) {
             this.showQuickTip("🌙 Try switching themes! Use the theme toggle in the sidebar for a different look.");
         }
+    }
+
+    showQuickHelpMenu() {
+        // Remove any existing help menu
+        const existingMenu = document.querySelector('.quick-help-menu');
+        if (existingMenu) {
+            existingMenu.remove();
+            return; // Toggle behavior
+        }
+
+        const helpMenu = document.createElement('div');
+        helpMenu.className = 'quick-help-menu';
+        helpMenu.innerHTML = `
+            <div class="help-content">
+                <div class="help-header">
+                    <h3>🚀 Quick Help</h3>
+                    <button onclick="this.parentElement.parentElement.parentElement.remove()">×</button>
+                </div>
+                <div class="help-sections">
+                    <div class="help-section">
+                        <h4>🎤 Voice Commands</h4>
+                        <ul>
+                            <li>Click microphone button and speak</li>
+                            <li>Ask personal questions like "What's your superpower?"</li>
+                            <li>Try technical topics or casual conversation</li>
+                        </ul>
+                    </div>
+                    <div class="help-section">
+                        <h4>⌨️ Keyboard Shortcuts</h4>
+                        <ul>
+                            <li><kbd>F1</kbd> - Show tutorial</li>
+                            <li><kbd>Alt + A</kbd> - Analytics dashboard</li>
+                            <li><kbd>Ctrl + ?</kbd> - This help menu</li>
+                            <li><kbd>Enter</kbd> - Send text message</li>
+                        </ul>
+                    </div>
+                    <div class="help-section">
+                        <h4>✨ Features</h4>
+                        <ul>
+                            <li>Dark/Light theme toggle in sidebar</li>
+                            <li>Voice recognition with real-time feedback</li>
+                            <li>Conversation analytics and insights</li>
+                            <li>Mobile-friendly responsive design</li>
+                        </ul>
+                    </div>
+                    <div class="help-section">
+                        <h4>💡 Example Questions</h4>
+                        <ul>
+                            <li>"What's your life story?"</li>
+                            <li>"How do you push your boundaries?"</li>
+                            <li>"Explain machine learning in simple terms"</li>
+                            <li>"What's the weather like today?"</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="help-footer">
+                    <button class="tutorial-btn start-btn" onclick="window.voiceAI.showWelcomeTutorial(); this.parentElement.parentElement.parentElement.remove();">
+                        📚 Show Full Tutorial
+                    </button>
+                </div>
+            </div>
+        `;
+        
+        document.body.appendChild(helpMenu);
+    }
+
+    resetAndShowTutorial() {
+        // Clear tutorial timestamp to force showing
+        localStorage.removeItem('voiceAI_lastTutorial');
+        
+        // Show tutorial immediately
+        this.showWelcomeTutorial();
+        
+        // Show confirmation tip
+        setTimeout(() => {
+            this.showQuickTip("🔄 Tutorial reset! You'll see it again on your next visit.");
+        }, 500);
     }
 }
 
