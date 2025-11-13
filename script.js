@@ -42,6 +42,9 @@ class VoiceAI {
         
         // Add analytics keyboard shortcut (Alt+A for demo)
         this.initializeAnalyticsShortcut();
+        
+        // Initialize tutorial system for new users
+        this.initializeTutorialSystem();
     }
 
     initializeAnalyticsShortcut() {
@@ -631,25 +634,20 @@ Remember: You're representing someone who thinks deeply about technology, societ
             // Check if it's a personal question
             if (this.detectPersonalQuestion(message)) {
                 this.analytics.personalQuestions++;
-                const personalResponse = this.generatePersonalityResponse(message);
-                
-                // Hide thinking animation before showing response
-                this.hideThinkingAnimation();
-                this.addBotMessage(personalResponse);
-                
-                // Use browser TTS for personal responses (since they're local)
-                this.playOpenAIAudio(null, personalResponse);
-            } else {
-                // Get AI response with OpenAI TTS
-                const data = await this.getAIResponseWithTTS(message);
-                
-                // Hide thinking animation before showing response
-                this.hideThinkingAnimation();
-                this.addBotMessage(data.response);
-                
-                // Play OpenAI TTS audio if available
-                this.playOpenAIAudio(data.audio, data.response);
             }
+            
+            // All questions go through OpenAI API for consistency
+            const data = await this.getAIResponseWithTTS(message);
+            
+            // Hide thinking animation before showing response
+            this.hideThinkingAnimation();
+            this.addBotMessage(data.response);
+            
+            // Play OpenAI TTS audio if available, otherwise use browser TTS
+            this.playOpenAIAudio(data.audio, data.response);
+            
+            // Show contextual tips for new users
+            this.showContextualTips();
             
             // Track response time
             const responseTime = Date.now() - startTime;
@@ -1440,6 +1438,163 @@ Press Alt+A anytime to view this dashboard!
         setTimeout(() => {
             document.body.style.transition = '';
         }, 300);
+    }
+
+    // Tutorial system for new users
+    initializeTutorialSystem() {
+        // Check if user has seen tutorial
+        const hasSeenTutorial = localStorage.getItem('voiceAI_tutorialSeen');
+        
+        if (!hasSeenTutorial) {
+            // Show tutorial after a brief delay
+            setTimeout(() => {
+                this.showWelcomeTutorial();
+            }, 2000);
+        }
+    }
+
+    showWelcomeTutorial() {
+        // Create tutorial overlay
+        const tutorialOverlay = document.createElement('div');
+        tutorialOverlay.className = 'tutorial-overlay';
+        tutorialOverlay.innerHTML = `
+            <div class="tutorial-content">
+                <div class="tutorial-header">
+                    <h2>👋 Welcome to Samerth's Voice Bot!</h2>
+                    <p>Let me show you around in 30 seconds</p>
+                </div>
+                <div class="tutorial-steps">
+                    <div class="tutorial-step active" data-step="1">
+                        <div class="step-icon">🎤</div>
+                        <h3>Voice & Text Input</h3>
+                        <p>Click the microphone button or type your questions. Both work perfectly!</p>
+                    </div>
+                    <div class="tutorial-step" data-step="2">
+                        <div class="step-icon">🤖</div>
+                        <h3>AI Conversations</h3>
+                        <p>Ask me anything! Personal questions, technical topics, or just casual chat.</p>
+                    </div>
+                    <div class="tutorial-step" data-step="3">
+                        <div class="step-icon">📊</div>
+                        <h3>Analytics Dashboard</h3>
+                        <p>Press <kbd>Alt + A</kbd> anytime to see conversation analytics and insights.</p>
+                    </div>
+                    <div class="tutorial-step" data-step="4">
+                        <div class="step-icon">🌙</div>
+                        <h3>Theme Toggle</h3>
+                        <p>Switch between dark and light modes using the toggle in the sidebar.</p>
+                    </div>
+                </div>
+                <div class="tutorial-controls">
+                    <button class="tutorial-btn skip-btn" onclick="window.voiceAI.skipTutorial()">Skip</button>
+                    <button class="tutorial-btn next-btn" onclick="window.voiceAI.nextTutorialStep()">Next</button>
+                    <button class="tutorial-btn start-btn" onclick="window.voiceAI.completeTutorial()" style="display: none;">Start Chatting!</button>
+                </div>
+                <div class="tutorial-progress">
+                    <div class="progress-bar">
+                        <div class="progress-fill"></div>
+                    </div>
+                    <span class="progress-text">1 of 4</span>
+                </div>
+            </div>
+        `;
+        
+        document.body.appendChild(tutorialOverlay);
+        this.currentTutorialStep = 1;
+        this.animateTutorialStep();
+    }
+
+    nextTutorialStep() {
+        this.currentTutorialStep++;
+        const totalSteps = 4;
+        
+        // Update active step
+        document.querySelectorAll('.tutorial-step').forEach((step, index) => {
+            step.classList.toggle('active', index + 1 === this.currentTutorialStep);
+        });
+        
+        // Update progress
+        const progress = (this.currentTutorialStep / totalSteps) * 100;
+        document.querySelector('.progress-fill').style.width = progress + '%';
+        document.querySelector('.progress-text').textContent = `${this.currentTutorialStep} of ${totalSteps}`;
+        
+        // Show start button on last step
+        if (this.currentTutorialStep === totalSteps) {
+            document.querySelector('.next-btn').style.display = 'none';
+            document.querySelector('.start-btn').style.display = 'inline-block';
+        }
+        
+        this.animateTutorialStep();
+    }
+
+    animateTutorialStep() {
+        const activeStep = document.querySelector('.tutorial-step.active');
+        if (activeStep) {
+            activeStep.style.animation = 'none';
+            setTimeout(() => {
+                activeStep.style.animation = 'tutorialSlideIn 0.5s ease-out';
+            }, 50);
+        }
+    }
+
+    skipTutorial() {
+        this.completeTutorial();
+    }
+
+    completeTutorial() {
+        // Mark tutorial as seen
+        localStorage.setItem('voiceAI_tutorialSeen', 'true');
+        
+        // Remove tutorial overlay
+        const overlay = document.querySelector('.tutorial-overlay');
+        if (overlay) {
+            overlay.style.animation = 'tutorialFadeOut 0.3s ease-out forwards';
+            setTimeout(() => {
+                overlay.remove();
+            }, 300);
+        }
+        
+        // Show a helpful tip
+        setTimeout(() => {
+            this.showQuickTip("💡 Try asking me something! You can say 'What's your superpower?' or any question you'd like.");
+        }, 1000);
+    }
+
+    showQuickTip(message) {
+        const tipElement = document.createElement('div');
+        tipElement.className = 'quick-tip';
+        tipElement.innerHTML = `
+            <div class="tip-content">
+                <i class="fas fa-lightbulb"></i>
+                <span>${message}</span>
+                <button onclick="this.parentElement.parentElement.remove()">×</button>
+            </div>
+        `;
+        
+        document.body.appendChild(tipElement);
+        
+        // Auto-remove after 8 seconds
+        setTimeout(() => {
+            if (tipElement.parentElement) {
+                tipElement.style.animation = 'tipSlideOut 0.3s ease-out forwards';
+                setTimeout(() => tipElement.remove(), 300);
+            }
+        }, 8000);
+    }
+
+    showContextualTips() {
+        const totalQuestions = this.analytics.totalQuestions;
+        
+        // Show different tips based on user interaction count
+        if (totalQuestions === 2) {
+            this.showQuickTip("🎤 Try using voice input! Click the microphone button and ask me a question.");
+        } else if (totalQuestions === 5 && this.analytics.voiceUsage === 0) {
+            this.showQuickTip("💬 You can ask personal questions like 'What's your superpower?' or 'Tell me about your background'");
+        } else if (totalQuestions === 7) {
+            this.showQuickTip("📊 Press Alt + A to see your conversation analytics and insights!");
+        } else if (totalQuestions === 10) {
+            this.showQuickTip("🌙 Try switching themes! Use the theme toggle in the sidebar for a different look.");
+        }
     }
 }
 

@@ -62,7 +62,7 @@ Respond conversationally and personally. Keep answers under 150 words. Be warm a
                     body: JSON.stringify({
                         model: 'gpt-4o',
                         messages: messages,
-                        max_tokens: 200,
+                        max_tokens: 300,
                         temperature: 0.7,
                     }),
                 });
@@ -71,7 +71,11 @@ Respond conversationally and personally. Keep answers under 150 words. Be warm a
 
                 if (response.ok) {
                     const data = await response.json();
-                    const aiResponse = data.choices[0]?.message?.content || generateFallbackResponse(message);
+                    let aiResponse = data.choices[0]?.message?.content || generateFallbackResponse(message);
+                    
+                    // Ensure proper sentence completion
+                    aiResponse = ensureSentenceCompletion(aiResponse);
+                    
                     console.log('OpenAI success, response length:', aiResponse.length); // Debug log
                     return res.status(200).json({ response: aiResponse });
                 } else {
@@ -135,4 +139,44 @@ function generateFallbackResponse(message) {
     ];
     
     return responses[Math.floor(Math.random() * responses.length)];
+}
+
+function ensureSentenceCompletion(text) {
+    if (!text) return text;
+    
+    // Trim whitespace
+    text = text.trim();
+    
+    // If text ends with proper punctuation, return as is
+    if (/[.!?]$/.test(text)) {
+        return text;
+    }
+    
+    // Find the last complete sentence
+    const sentences = text.split(/([.!?]+)/);
+    let completeSentences = '';
+    
+    for (let i = 0; i < sentences.length - 1; i += 2) {
+        const sentence = sentences[i]?.trim();
+        const punctuation = sentences[i + 1] || '.';
+        
+        if (sentence && sentence.length > 0) {
+            completeSentences += sentence + punctuation + ' ';
+        }
+    }
+    
+    // If we have complete sentences, use them
+    if (completeSentences.trim().length > 0) {
+        return completeSentences.trim();
+    }
+    
+    // If no complete sentences, try to add appropriate punctuation
+    const lastSentence = text.replace(/[.!?]*$/, '').trim();
+    
+    // Add period if it looks like a statement
+    if (lastSentence.length > 0) {
+        return lastSentence + '.';
+    }
+    
+    return text;
 }

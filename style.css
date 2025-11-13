@@ -1167,3 +1167,257 @@ body.mobile-device .app-container {
 .thinking-text {
     font-weight: 500;
 }
+
+/* ============ TUTORIAL SYSTEM ============ */
+
+.tutorial-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.8);
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: tutorialFadeIn 0.3s ease-out;
+}
+
+.tutorial-content {
+    background: var(--bg-secondary);
+    border-radius: var(--radius-2xl);
+    padding: var(--spacing-2xl);
+    max-width: 500px;
+    width: 90vw;
+    max-height: 80vh;
+    overflow-y: auto;
+    box-shadow: var(--shadow-xl);
+    border: 1px solid var(--border-color);
+}
+
+.tutorial-header {
+    text-align: center;
+    margin-bottom: var(--spacing-xl);
+}
+
+.tutorial-header h2 {
+    font-size: var(--text-2xl);
+    margin-bottom: var(--spacing-sm);
+    color: var(--text-primary);
+}
+
+.tutorial-header p {
+    color: var(--text-secondary);
+    font-size: var(--text-base);
+}
+
+.tutorial-steps {
+    margin-bottom: var(--spacing-xl);
+}
+
+.tutorial-step {
+    display: none;
+    text-align: center;
+    padding: var(--spacing-lg);
+    border-radius: var(--radius-lg);
+    background: var(--bg-tertiary);
+    border: 2px solid transparent;
+    transition: all 0.3s ease;
+}
+
+.tutorial-step.active {
+    display: block;
+    border-color: var(--accent-primary);
+    animation: tutorialSlideIn 0.5s ease-out;
+}
+
+.step-icon {
+    font-size: var(--text-4xl);
+    margin-bottom: var(--spacing-md);
+}
+
+.tutorial-step h3 {
+    font-size: var(--text-lg);
+    margin-bottom: var(--spacing-sm);
+    color: var(--text-primary);
+}
+
+.tutorial-step p {
+    color: var(--text-secondary);
+    line-height: 1.6;
+}
+
+.tutorial-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--spacing-lg);
+}
+
+.tutorial-btn {
+    padding: var(--spacing-sm) var(--spacing-lg);
+    border: none;
+    border-radius: var(--radius-lg);
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.skip-btn {
+    background: transparent;
+    color: var(--text-secondary);
+    border: 1px solid var(--border-color);
+}
+
+.skip-btn:hover {
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+}
+
+.next-btn, .start-btn {
+    background: linear-gradient(135deg, var(--accent-primary), var(--purple-primary));
+    color: white;
+}
+
+.next-btn:hover, .start-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md);
+}
+
+.tutorial-progress {
+    text-align: center;
+}
+
+.progress-bar {
+    width: 100%;
+    height: 4px;
+    background: var(--bg-tertiary);
+    border-radius: 2px;
+    margin-bottom: var(--spacing-sm);
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(135deg, var(--accent-primary), var(--purple-primary));
+    width: 25%;
+    transition: width 0.3s ease;
+}
+
+.progress-text {
+    font-size: var(--text-sm);
+    color: var(--text-secondary);
+}
+
+/* Quick Tips */
+.quick-tip {
+    position: fixed;
+    top: var(--spacing-lg);
+    right: var(--spacing-lg);
+    z-index: 9999;
+    animation: tipSlideIn 0.3s ease-out;
+}
+
+.tip-content {
+    background: var(--bg-secondary);
+    border: 1px solid var(--accent-primary);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-md) var(--spacing-lg);
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    box-shadow: var(--shadow-lg);
+    max-width: 350px;
+}
+
+.tip-content i {
+    color: var(--accent-primary);
+    font-size: var(--text-lg);
+    flex-shrink: 0;
+}
+
+.tip-content span {
+    color: var(--text-primary);
+    font-size: var(--text-sm);
+    line-height: 1.4;
+}
+
+.tip-content button {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    font-size: var(--text-lg);
+    cursor: pointer;
+    padding: var(--spacing-xs);
+    border-radius: var(--radius-sm);
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+}
+
+.tip-content button:hover {
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+}
+
+/* Tutorial Animations */
+@keyframes tutorialFadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes tutorialFadeOut {
+    from { opacity: 1; }
+    to { opacity: 0; }
+}
+
+@keyframes tutorialSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes tipSlideIn {
+    from {
+        opacity: 0;
+        transform: translateX(100%);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes tipSlideOut {
+    from {
+        opacity: 1;
+        transform: translateX(0);
+    }
+    to {
+        opacity: 0;
+        transform: translateX(100%);
+    }
+}
+
+/* Mobile Tutorial Adjustments */
+@media (max-width: 768px) {
+    .tutorial-content {
+        padding: var(--spacing-lg);
+        margin: var(--spacing-md);
+    }
+    
+    .quick-tip {
+        top: var(--spacing-md);
+        right: var(--spacing-md);
+        left: var(--spacing-md);
+    }
+    
+    .tip-content {
+        max-width: none;
+    }
+}
