@@ -149,6 +149,8 @@ body.mobile-device .app-container {
     display: flex;
     align-items: center;
     justify-content: space-between;
+    flex-wrap: wrap;
+    gap: var(--spacing-sm);
 }
 
 .logo {
@@ -156,12 +158,20 @@ body.mobile-device .app-container {
     align-items: center;
     gap: var(--spacing-sm);
     font-weight: 700;
-    font-size: var(--text-lg);
+    font-size: var(--text-base);
     color: var(--text-primary);
     background: linear-gradient(135deg, var(--accent-primary), var(--purple-primary));
     background-clip: text;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
+    flex: 1;
+    min-width: 0;
+}
+
+.logo span {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .logo i {
@@ -174,14 +184,14 @@ body.mobile-device .app-container {
     border: 1px solid var(--border-color);
     border-radius: var(--radius-lg);
     color: var(--text-secondary);
-    font-size: var(--text-sm);
+    font-size: var(--text-xs);
     cursor: pointer;
-    padding: var(--spacing-xs) var(--spacing-sm);
+    padding: var(--spacing-xs);
     display: flex;
     align-items: center;
     gap: var(--spacing-xs);
     transition: all 0.2s ease;
-    margin-left: auto;
+    flex-shrink: 0;
 }
 
 .theme-toggle:hover {
@@ -200,6 +210,7 @@ body.mobile-device .app-container {
     border-radius: var(--radius-md);
     transition: all 0.2s ease;
     display: none;
+    flex-shrink: 0;
 }
 
 .sidebar-toggle:hover {
@@ -353,10 +364,12 @@ body.mobile-device .app-container {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    max-width: 900px;
+    max-width: 1100px;
     margin: 0 auto;
-    padding: var(--spacing-2xl);
+    padding: var(--spacing-xl) var(--spacing-lg);
     text-align: center;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .welcome-header {
@@ -416,11 +429,11 @@ body.mobile-device .app-container {
 
 .feature-cards {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
     gap: var(--spacing-lg);
     margin-bottom: var(--spacing-2xl);
     width: 100%;
-    max-width: 800px;
+    max-width: 1000px;
 }
 
 .feature-card {
@@ -588,11 +601,13 @@ body.mobile-device .app-container {
 
 .chat-container {
     flex: 1;
-    padding: var(--spacing-xl);
+    padding: var(--spacing-lg);
     overflow-y: auto;
     background: var(--bg-primary);
     scrollbar-width: thin;
     scrollbar-color: var(--border-color) transparent;
+    max-width: 100%;
+    word-wrap: break-word;
 }
 
 .chat-container::-webkit-scrollbar {
@@ -612,6 +627,7 @@ body.mobile-device .app-container {
     display: flex;
     margin-bottom: var(--spacing-lg);
     animation: messageSlideIn 0.3s ease-out;
+    max-width: 100%;
 }
 
 @keyframes messageSlideIn {
@@ -656,6 +672,8 @@ body.mobile-device .app-container {
 
 .message-content {
     max-width: 70%;
+    min-width: 0;
+    flex: 1;
 }
 
 .message-text {
@@ -663,6 +681,8 @@ body.mobile-device .app-container {
     border-radius: var(--radius-lg);
     line-height: 1.6;
     font-size: var(--text-sm);
+    word-wrap: break-word;
+    overflow-wrap: break-word;
 }
 
 .ai-message .message-text {
@@ -727,6 +747,9 @@ body.mobile-device .app-container {
     gap: var(--spacing-md);
     max-width: 1000px;
     margin: 0 auto;
+    padding: 0 var(--spacing-md);
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .voice-btn {
@@ -820,6 +843,19 @@ body.mobile-device .app-container {
 
 /* ============ RESPONSIVE DESIGN ============ */
 
+/* Medium screens */
+@media (max-width: 1024px) {
+    .feature-cards {
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: var(--spacing-md);
+    }
+    
+    .welcome-container {
+        max-width: 900px;
+        padding: var(--spacing-lg);
+    }
+}
+
 /* Mobile overlay for sidebar */
 .mobile-overlay {
     position: fixed;
@@ -858,6 +894,29 @@ body.mobile-device .app-container {
         display: block;
     }
     
+    .sidebar-header {
+        padding: var(--spacing-md);
+        flex-wrap: nowrap;
+    }
+    
+    .logo {
+        font-size: var(--text-sm);
+    }
+    
+    .logo span {
+        font-size: var(--text-xs);
+    }
+    
+    .theme-toggle {
+        padding: var(--spacing-xs);
+        font-size: 10px;
+        min-width: auto;
+    }
+    
+    .theme-toggle span {
+        display: none;
+    }
+    
     .main-content {
         width: 100%;
         overflow-y: auto;
@@ -883,10 +942,12 @@ body.mobile-device .app-container {
         grid-template-columns: 1fr;
         gap: var(--spacing-md);
         max-width: none;
+        margin-bottom: var(--spacing-lg);
     }
     
     .feature-card {
         padding: var(--spacing-lg);
+        margin: 0;
     }
     
     .input-controls {
