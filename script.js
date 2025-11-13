@@ -60,6 +60,7 @@ class VoiceAI {
         this.newChatBtn = document.getElementById('newChatBtn');
         this.homeNavItem = document.getElementById('homeNavItem');
         this.chatNavItem = document.getElementById('chatNavItem');
+        this.themeToggle = document.getElementById('themeToggle');
         
         // Page elements
         this.homePage = document.getElementById('homePage');
@@ -78,6 +79,10 @@ class VoiceAI {
         this.sendBtn = document.getElementById('sendBtn');
         this.waveBars = document.getElementById('waveBars');
         this.waveVisualizer = document.getElementById('waveVisualizer');
+        
+        // Initialize theme
+        this.currentTheme = localStorage.getItem('theme') || 'dark';
+        this.setTheme(this.currentTheme);
     }
 
     initializeSpeechRecognition() {
@@ -148,6 +153,13 @@ class VoiceAI {
         if (this.sidebarToggle) {
             this.sidebarToggle.addEventListener('click', () => {
                 this.toggleSidebar();
+            });
+        }
+
+        // Theme toggle
+        if (this.themeToggle) {
+            this.themeToggle.addEventListener('click', () => {
+                this.toggleTheme();
             });
         }
 
@@ -412,6 +424,42 @@ Remember: You're representing someone who thinks deeply about technology, societ
     toggleSidebar() {
         if (this.sidebar) {
             this.sidebar.classList.toggle('open');
+            
+            // Add mobile overlay for better UX on mobile devices
+            if (window.innerWidth <= 768) {
+                this.toggleMobileOverlay();
+            }
+        }
+    }
+
+    toggleMobileOverlay() {
+        let overlay = document.querySelector('.mobile-overlay');
+        
+        if (!overlay) {
+            overlay = document.createElement('div');
+            overlay.className = 'mobile-overlay';
+            document.body.appendChild(overlay);
+            
+            // Close sidebar when clicking overlay
+            overlay.addEventListener('click', () => {
+                this.closeSidebar();
+            });
+        }
+        
+        if (this.sidebar.classList.contains('open')) {
+            overlay.classList.add('active');
+        } else {
+            overlay.classList.remove('active');
+        }
+    }
+
+    closeSidebar() {
+        if (this.sidebar) {
+            this.sidebar.classList.remove('open');
+            const overlay = document.querySelector('.mobile-overlay');
+            if (overlay) {
+                overlay.classList.remove('active');
+            }
         }
     }
 
@@ -1361,6 +1409,37 @@ Press Alt+A anytime to view this dashboard!
         
         this.conversationHistory = [];
         this.updateChatStatus('Ready to listen');
+    }
+
+    // Theme management methods
+    setTheme(theme) {
+        this.currentTheme = theme;
+        document.documentElement.setAttribute('data-theme', theme);
+        localStorage.setItem('theme', theme);
+        
+        if (this.themeToggle) {
+            const icon = this.themeToggle.querySelector('i');
+            const text = this.themeToggle.querySelector('span');
+            
+            if (theme === 'dark') {
+                icon.className = 'fas fa-moon';
+                text.textContent = 'Dark';
+            } else {
+                icon.className = 'fas fa-sun';
+                text.textContent = 'Light';
+            }
+        }
+    }
+
+    toggleTheme() {
+        const newTheme = this.currentTheme === 'dark' ? 'light' : 'dark';
+        this.setTheme(newTheme);
+        
+        // Add a subtle animation effect
+        document.body.style.transition = 'background-color 0.3s ease, color 0.3s ease';
+        setTimeout(() => {
+            document.body.style.transition = '';
+        }, 300);
     }
 }
 
