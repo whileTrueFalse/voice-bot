@@ -573,6 +573,15 @@ body.mobile-device .app-container {
 .chat-status {
     font-size: var(--text-sm);
     color: var(--text-secondary);
+    transition: all 0.3s ease;
+    padding: 4px 8px;
+    border-radius: 12px;
+}
+
+.chat-status.audio-active {
+    background: rgba(76, 175, 80, 0.1);
+    color: var(--accent-color);
+    font-weight: 500;
 }
 
 .chat-actions {
