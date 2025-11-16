@@ -54,8 +54,16 @@ Your approach: Engage thoughtfully with topics rather than giving generic respon
 
 Respond conversationally and personally. Keep answers under 150 words. Be warm and genuine while staying secure.`;
 
+        // Validate OpenAI API key
+        console.log('🔑 API Key Check:', {
+            present: !!OPENAI_API_KEY,
+            length: OPENAI_API_KEY?.length,
+            startsWithSk: OPENAI_API_KEY?.startsWith('sk-'),
+            isNotPlaceholder: OPENAI_API_KEY !== 'your_openai_key_here'
+        });
+
         // Try OpenAI API first
-        if (OPENAI_API_KEY && OPENAI_API_KEY !== 'your_openai_key_here') {
+        if (OPENAI_API_KEY && OPENAI_API_KEY !== 'your_openai_key_here' && OPENAI_API_KEY.startsWith('sk-')) {
             try {
                 console.log('Attempting OpenAI API call...'); // Debug log
                 
@@ -95,9 +103,10 @@ Respond conversationally and personally. Keep answers under 150 words. Be warm a
                     let ttsSuccess = false;
                     
                     try {
-                        console.log('🎵 Starting OpenAI TTS generation with alloy voice...');
-                        console.log('Text length:', aiResponse.length);
+                        console.log('🎵 Generating speech using OpenAI gpt-4o-mini-tts model...');
+                        console.log('Voice: alloy | Format: mp3 | Text length:', aiResponse.length);
                         
+                        // Use official OpenAI TTS API as documented
                         const ttsResponse = await fetch('https://api.openai.com/v1/audio/speech', {
                             method: 'POST',
                             headers: {
@@ -105,11 +114,10 @@ Respond conversationally and personally. Keep answers under 150 words. Be warm a
                                 'Content-Type': 'application/json',
                             },
                             body: JSON.stringify({
-                                model: 'tts-1',
-                                input: aiResponse,
-                                voice: 'alloy',
-                                response_format: 'mp3',
-                                speed: 1.0
+                                model: 'gpt-4o-mini-tts',  // Newest and most reliable TTS model
+                                voice: 'alloy',             // Selected voice from 11 available options
+                                input: aiResponse,          // Text to be turned into audio
+                                response_format: 'mp3'      // Default format for general use cases
                             }),
                         });
                         
@@ -120,9 +128,9 @@ Respond conversationally and personally. Keep answers under 150 words. Be warm a
                             const audioBuffer = await ttsResponse.arrayBuffer();
                             audioBase64 = Buffer.from(audioBuffer).toString('base64');
                             ttsSuccess = true;
-                            console.log('✅ TTS audio generated successfully!');
-                            console.log('Audio size (base64):', audioBase64.length);
-                            console.log('Audio size (bytes):', audioBuffer.byteLength);
+                            console.log('✅ OpenAI TTS SUCCESS - gpt-4o-mini-tts with alloy voice');
+                            console.log('Audio generated - Size:', audioBuffer.byteLength, 'bytes');
+                            console.log('Base64 encoded - Length:', audioBase64.length, 'characters');
                         } else {
                             const errorText = await ttsResponse.text();
                             console.error('❌ TTS generation failed:', ttsResponse.status, errorText);

@@ -1110,7 +1110,7 @@ Remember: You're representing someone who thinks deeply about technology, societ
         
         try {
             if (base64Audio && base64Audio.length > 0) {
-                console.log('🔊 Playing OpenAI TTS audio with ALLOY voice');
+                console.log('🔊 Playing OpenAI gpt-4o-mini-tts audio with alloy voice');
                 
                 // Convert base64 to audio blob
                 const binaryString = atob(base64Audio);
@@ -1128,23 +1128,23 @@ Remember: You're representing someone who thinks deeply about technology, societ
                 // Mobile audio play issues
                 if (this.isMobile) {
                     audio.load(); // Preload on mobile
-                    console.log('Mobile OpenAI audio loaded, attempting play...');
+                    console.log('Mobile gpt-4o-mini-tts audio loaded, attempting play...');
                 }
                 
                 audio.onended = () => {
                     URL.revokeObjectURL(audioUrl);
-                    console.log('OpenAI TTS playback completed');
+                    console.log('gpt-4o-mini-tts playback completed');
                 };
                 
                 audio.onerror = (error) => {
-                    console.error('OpenAI audio playback error:', error);
+                    console.error('gpt-4o-mini-tts audio playback error:', error);
                     URL.revokeObjectURL(audioUrl);
                     // Fallback to browser TTS on error
                     this.speak(fallbackText);
                 };
                 
                 await audio.play();
-                console.log('🎉 SUCCESS: OpenAI TTS (alloy voice) is playing!');
+                console.log('🎉 SUCCESS: OpenAI gpt-4o-mini-tts (alloy voice) playing!');
             } else {
                 console.log('❌ NO OPENAI AUDIO: Falling back to browser TTS');
                 console.log('Reason: base64Audio is', base64Audio ? 'empty' : 'null/undefined');
