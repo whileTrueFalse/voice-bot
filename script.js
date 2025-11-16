@@ -750,6 +750,16 @@ Remember: You're representing someone who thinks deeply about technology, societ
             console.log('Has response:', !!data.response);
             console.log('Has audio:', !!data.audio);
             console.log('hasAudio flag:', data.hasAudio);
+            console.log('Audio length:', data.audio ? data.audio.length : 0);
+            console.log('TTS Model:', data.ttsModel || 'not specified');
+            console.log('Voice:', data.voice || 'not specified');
+            
+            if (data.audio) {
+                console.log('🎵 AUDIO DETECTED - Should play OpenAI TTS');
+                console.log('Audio preview:', data.audio.substring(0, 50) + '...');
+            } else {
+                console.log('❌ NO AUDIO - Will use browser TTS fallback');
+            }
             
             return {
                 response: data.response || this.generateFallbackResponse(message),
