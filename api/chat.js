@@ -145,7 +145,10 @@ Respond conversationally and personally. Keep answers under 150 words. Be warm a
                         audio: audioBase64,
                         hasAudio: !!audioBase64,
                         ttsGenerated: ttsSuccess,
-                        audioSize: audioBase64 ? audioBase64.length : 0
+                        audioSize: audioBase64 ? audioBase64.length : 0,
+                        ttsModel: 'gpt-4o-mini-tts',
+                        voice: 'nova',
+                        aiGenerated: true  // Required disclosure per OpenAI usage policies
                     };
                     
                     console.log('📤 Sending response:', {

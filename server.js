@@ -1048,7 +1048,7 @@ async function generateOpenAIVoice(text) {
         throw new Error('OpenAI API key not configured for TTS');
     }
 
-    console.log('🎤 Calling OpenAI TTS API...');
+    console.log('🎤 Calling OpenAI TTS API with gpt-4o-mini-tts (nova voice)...');
     
     const response = await fetch('https://api.openai.com/v1/audio/speech', {
         method: 'POST',
@@ -1057,11 +1057,10 @@ async function generateOpenAIVoice(text) {
             'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-            model: 'tts-1-hd', // High quality model for maximum naturalness
+            model: 'gpt-4o-mini-tts', // Newest and most reliable TTS model per OpenAI docs
             input: text,
-            voice: 'onyx', // Deep, warm, mature male voice - perfect for 22yr old Indian male
-            response_format: 'mp3',
-            speed: 0.85 // Slightly slower for natural, conversational pace
+            voice: 'nova', // Nova voice - warmer and more expressive
+            response_format: 'mp3' // Default format for general use cases
         })
     });
 
