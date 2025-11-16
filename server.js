@@ -1048,7 +1048,7 @@ async function generateOpenAIVoice(text) {
         throw new Error('OpenAI API key not configured for TTS');
     }
 
-    console.log('🎤 Calling OpenAI TTS API with gpt-4o-mini-tts (nova voice)...');
+    console.log('🎤 Calling OpenAI TTS API with gpt-4o-mini-tts (echo voice)...');
     
     const response = await fetch('https://api.openai.com/v1/audio/speech', {
         method: 'POST',
@@ -1059,7 +1059,7 @@ async function generateOpenAIVoice(text) {
         body: JSON.stringify({
             model: 'gpt-4o-mini-tts', // Newest and most reliable TTS model per OpenAI docs
             input: text,
-            voice: 'nova', // Nova voice - warmer and more expressive
+            voice: 'echo', // Echo voice - clear, articulate male voice
             response_format: 'mp3' // Default format for general use cases
         })
     });
