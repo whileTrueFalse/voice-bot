@@ -104,7 +104,7 @@ Respond conversationally and personally. Keep answers under 150 words. Be warm a
                     
                     try {
                         console.log('🎵 Generating speech using OpenAI gpt-4o-mini-tts model...');
-                        console.log('Voice: alloy | Format: mp3 | Text length:', aiResponse.length);
+                        console.log('Voice: nova | Format: mp3 | Text length:', aiResponse.length);
                         
                         // Use official OpenAI TTS API as documented
                         const ttsResponse = await fetch('https://api.openai.com/v1/audio/speech', {
@@ -115,7 +115,7 @@ Respond conversationally and personally. Keep answers under 150 words. Be warm a
                             },
                             body: JSON.stringify({
                                 model: 'gpt-4o-mini-tts',  // Newest and most reliable TTS model
-                                voice: 'alloy',             // Selected voice from 11 available options
+                                voice: 'nova',              // Nova voice - warmer and more expressive
                                 input: aiResponse,          // Text to be turned into audio
                                 response_format: 'mp3'      // Default format for general use cases
                             }),
@@ -128,9 +128,10 @@ Respond conversationally and personally. Keep answers under 150 words. Be warm a
                             const audioBuffer = await ttsResponse.arrayBuffer();
                             audioBase64 = Buffer.from(audioBuffer).toString('base64');
                             ttsSuccess = true;
-                            console.log('✅ OpenAI TTS SUCCESS - gpt-4o-mini-tts with alloy voice');
+                            console.log('✅ OpenAI TTS SUCCESS - gpt-4o-mini-tts with NOVA voice');
                             console.log('Audio generated - Size:', audioBuffer.byteLength, 'bytes');
                             console.log('Base64 encoded - Length:', audioBase64.length, 'characters');
+                            console.log('Audio sample (base64):', audioBase64.substring(0, 100));
                         } else {
                             const errorText = await ttsResponse.text();
                             console.error('❌ TTS generation failed:', ttsResponse.status, errorText);
