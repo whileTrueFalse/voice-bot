@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>OpenAI TTS Test</title>
+</head>
+<body>
+    <h1>OpenAI TTS Test</h1>
+    <button onclick="testTTS()">Test OpenAI TTS (Alloy)</button>
+    <div id="result"></div>
+    <audio id="testAudio" controls style="display:none;"></audio>
+
+    <script>
+        async function testTTS() {
+            const resultDiv = document.getElementById('result');
+            const audio = document.getElementById('testAudio');
+            
+            resultDiv.innerHTML = 'Testing OpenAI TTS...';
+            
+            try {
+                const response = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        message: 'Hello, this is a test of the OpenAI alloy voice.',
+                        history: []
+                    })
+                });
+                
+                const data = await response.json();
+                
+                resultDiv.innerHTML = `
+                    <h3>Results:</h3>
+                    <p><strong>Response:</strong> ${data.response}</p>
+                    <p><strong>Has Audio:</strong> ${data.hasAudio}</p>
+                    <p><strong>TTS Generated:</strong> ${data.ttsGenerated}</p>
+                    <p><strong>Audio Size:</strong> ${data.audioSize} bytes</p>
+                `;
+                
+                if (data.audio && data.hasAudio) {
+                    const binaryString = atob(data.audio);
+                    const bytes = new Uint8Array(binaryString.length);
+                    for (let i = 0; i < binaryString.length; i++) {
+                        bytes[i] = binaryString.charCodeAt(i);
+                    }
+                    
+                    const audioBlob = new Blob([bytes], { type: 'audio/mpeg' });
+                    const audioUrl = URL.createObjectURL(audioBlob);
+                    
+                    audio.src = audioUrl;
+                    audio.style.display = 'block';
+                    
+                    resultDiv.innerHTML += '<p><strong>✅ OpenAI TTS Audio ready to play!</strong></p>';
+                } else {
+                    resultDiv.innerHTML += '<p><strong>❌ No OpenAI TTS audio generated</strong></p>';
+                }
+                
+            } catch (error) {
+                resultDiv.innerHTML = `<p><strong>Error:</strong> ${error.message}</p>`;
+                console.error('Test error:', error);
+            }
+        }
+    </script>
+</body>
+</html>

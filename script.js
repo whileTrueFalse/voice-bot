@@ -675,13 +675,23 @@ Remember: You're representing someone who thinks deeply about technology, societ
             // All questions go through OpenAI API for consistency
             const data = await this.getAIResponseWithTTS(message);
             
+            // Debug TTS response
+            console.log('🎵 TTS Response Debug:', {
+                hasAudio: data.hasAudio,
+                ttsGenerated: data.ttsGenerated,
+                audioSize: data.audioSize,
+                audioPresent: !!data.audio
+            });
+            
             // Hide thinking animation before showing response
             this.hideThinkingAnimation();
             this.addBotMessage(data.response);
             
             // Show audio loading indicator if we have OpenAI audio
             if (data.hasAudio && data.audio) {
-                this.updateChatStatus('🔊 Playing audio...');
+                this.updateChatStatus(`🔊 Playing OpenAI Alloy voice... (${data.audioSize} bytes)`);
+            } else if (data.ttsGenerated === false) {
+                this.updateChatStatus('⚠️ TTS generation failed, using browser voice');
             }
             
             // Play OpenAI TTS audio if available, otherwise use browser TTS
@@ -708,10 +718,15 @@ Remember: You're representing someone who thinks deeply about technology, societ
 
     async getAIResponseWithTTS(message) {
         try {
+            console.log('=== API REQUEST DEBUG ===');
+            console.log('Hostname:', window.location.hostname);
+            
             // Use Netlify function endpoint
             const apiEndpoint = window.location.hostname.includes('netlify') 
                 ? '/.netlify/functions/chat' 
                 : '/api/chat';
+            
+            console.log('Using API endpoint:', apiEndpoint);
             
             const response = await fetch(apiEndpoint, {
                 method: 'POST',
@@ -729,6 +744,13 @@ Remember: You're representing someone who thinks deeply about technology, societ
             }
 
             const data = await response.json();
+            
+            console.log('=== API RESPONSE DEBUG ===');
+            console.log('Response keys:', Object.keys(data));
+            console.log('Has response:', !!data.response);
+            console.log('Has audio:', !!data.audio);
+            console.log('hasAudio flag:', data.hasAudio);
+            
             return {
                 response: data.response || this.generateFallbackResponse(message),
                 audio: data.audio || null,
@@ -1080,11 +1102,15 @@ Remember: You're representing someone who thinks deeply about technology, societ
             return;
         }
         
-        console.log('Playing audio - Mobile:', this.isMobile, 'Base64Audio:', !!base64Audio);
+        console.log('🎵 Audio Debug - Mobile:', this.isMobile, 'Has Base64Audio:', !!base64Audio);
+        if (base64Audio) {
+            console.log('Base64 Audio Length:', base64Audio.length);
+            console.log('Base64 Audio Preview:', base64Audio.substring(0, 100) + '...');
+        }
         
         try {
-            if (base64Audio) {
-                console.log('Playing OpenAI TTS audio with alloy voice');
+            if (base64Audio && base64Audio.length > 0) {
+                console.log('🔊 Playing OpenAI TTS audio with ALLOY voice');
                 
                 // Convert base64 to audio blob
                 const binaryString = atob(base64Audio);
@@ -1118,9 +1144,10 @@ Remember: You're representing someone who thinks deeply about technology, societ
                 };
                 
                 await audio.play();
-                console.log('OpenAI TTS (alloy voice) played successfully');
+                console.log('🎉 SUCCESS: OpenAI TTS (alloy voice) is playing!');
             } else {
-                console.log('No OpenAI audio available, using browser TTS');
+                console.log('❌ NO OPENAI AUDIO: Falling back to browser TTS');
+                console.log('Reason: base64Audio is', base64Audio ? 'empty' : 'null/undefined');
                 // Fallback to browser TTS
                 this.speak(fallbackText);
             }

@@ -92,8 +92,12 @@ Respond conversationally and personally. Keep answers under 150 words. Be warm a
                     
                     // Generate TTS audio using OpenAI
                     let audioBase64 = null;
+                    let ttsSuccess = false;
+                    
                     try {
-                        console.log('Generating TTS audio...');
+                        console.log('🎵 Starting OpenAI TTS generation with alloy voice...');
+                        console.log('Text length:', aiResponse.length);
+                        
                         const ttsResponse = await fetch('https://api.openai.com/v1/audio/speech', {
                             method: 'POST',
                             headers: {
@@ -104,26 +108,45 @@ Respond conversationally and personally. Keep answers under 150 words. Be warm a
                                 model: 'tts-1',
                                 input: aiResponse,
                                 voice: 'alloy',
-                                response_format: 'mp3'
+                                response_format: 'mp3',
+                                speed: 1.0
                             }),
                         });
+                        
+                        console.log('TTS Response status:', ttsResponse.status);
+                        console.log('TTS Response headers:', Object.fromEntries(ttsResponse.headers.entries()));
                         
                         if (ttsResponse.ok) {
                             const audioBuffer = await ttsResponse.arrayBuffer();
                             audioBase64 = Buffer.from(audioBuffer).toString('base64');
-                            console.log('TTS audio generated successfully, size:', audioBase64.length);
+                            ttsSuccess = true;
+                            console.log('✅ TTS audio generated successfully!');
+                            console.log('Audio size (base64):', audioBase64.length);
+                            console.log('Audio size (bytes):', audioBuffer.byteLength);
                         } else {
-                            console.log('TTS generation failed:', ttsResponse.status);
+                            const errorText = await ttsResponse.text();
+                            console.error('❌ TTS generation failed:', ttsResponse.status, errorText);
                         }
                     } catch (ttsError) {
-                        console.error('TTS generation error:', ttsError);
+                        console.error('❌ TTS generation exception:', ttsError);
                     }
                     
-                    return res.status(200).json({ 
+                    const responseData = {
                         response: aiResponse,
                         audio: audioBase64,
-                        hasAudio: !!audioBase64
+                        hasAudio: !!audioBase64,
+                        ttsGenerated: ttsSuccess,
+                        audioSize: audioBase64 ? audioBase64.length : 0
+                    };
+                    
+                    console.log('📤 Sending response:', {
+                        responseLength: aiResponse.length,
+                        hasAudio: !!audioBase64,
+                        ttsGenerated: ttsSuccess,
+                        audioSize: audioBase64 ? audioBase64.length : 0
                     });
+                    
+                    return res.status(200).json(responseData);
                 } else {
                     const errorData = await response.text();
                     console.error('OpenAI API error:', response.status, errorData);
