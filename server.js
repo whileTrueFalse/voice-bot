@@ -5,8 +5,139 @@ require('dotenv').config();
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// Rate limiting and abuse protection
+const requestCounts = new Map(); // IP -> { count, firstRequest, lastRequest, blocked }
+const RATE_LIMITS = {
+    MAX_REQUESTS_PER_MINUTE: 10,
+    MAX_REQUESTS_PER_HOUR: 50,
+    MAX_MESSAGE_LENGTH: 500,
+    MIN_TIME_BETWEEN_REQUESTS: 2000, // 2 seconds
+    BLOCK_DURATION: 15 * 60 * 1000, // 15 minutes
+    SUSPICIOUS_PATTERNS: [
+        /repeat|test|spam|bot|automated/i,
+        /^(..)\1{5,}/, // Repeated character patterns
+        /^(.)\1{20,}/, // Single character repeated 20+ times
+    ]
+};
+
+// Rate limiting middleware
+function rateLimitMiddleware(req, res, next) {
+    const clientIP = req.ip || req.connection.remoteAddress || req.headers['x-forwarded-for'] || 'unknown';
+    const now = Date.now();
+    
+    // Get or create rate limit data for this IP
+    if (!requestCounts.has(clientIP)) {
+        requestCounts.set(clientIP, {
+            count: 0,
+            hourlyCount: 0,
+            firstRequest: now,
+            lastRequest: 0,
+            blocked: false,
+            blockUntil: 0
+        });
+    }
+    
+    const clientData = requestCounts.get(clientIP);
+    
+    // Check if IP is currently blocked
+    if (clientData.blocked && now < clientData.blockUntil) {
+        console.log(`🚫 Blocked IP ${clientIP} tried to access (blocked until ${new Date(clientData.blockUntil).toLocaleTimeString()})`);
+        return res.status(429).json({ 
+            error: 'Too many requests. Please try again later.',
+            retryAfter: Math.ceil((clientData.blockUntil - now) / 1000)
+        });
+    }
+    
+    // Reset block if time has passed
+    if (clientData.blocked && now >= clientData.blockUntil) {
+        clientData.blocked = false;
+        clientData.count = 0;
+        clientData.hourlyCount = 0;
+        clientData.firstRequest = now;
+    }
+    
+    // Check time since last request (prevent rapid-fire requests)
+    if (clientData.lastRequest > 0 && (now - clientData.lastRequest) < RATE_LIMITS.MIN_TIME_BETWEEN_REQUESTS) {
+        console.log(`⚡ IP ${clientIP} sending requests too quickly`);
+        return res.status(429).json({ 
+            error: 'Please wait a moment between requests.',
+            retryAfter: Math.ceil(RATE_LIMITS.MIN_TIME_BETWEEN_REQUESTS / 1000)
+        });
+    }
+    
+    // Reset counters if more than an hour has passed
+    if (now - clientData.firstRequest > 60 * 60 * 1000) {
+        clientData.count = 0;
+        clientData.hourlyCount = 0;
+        clientData.firstRequest = now;
+    }
+    
+    // Reset minute counter if more than a minute has passed
+    if (now - clientData.lastRequest > 60 * 1000) {
+        clientData.count = 0;
+    }
+    
+    // Increment counters
+    clientData.count++;
+    clientData.hourlyCount++;
+    clientData.lastRequest = now;
+    
+    // Check rate limits
+    if (clientData.count > RATE_LIMITS.MAX_REQUESTS_PER_MINUTE) {
+        console.log(`🚨 IP ${clientIP} exceeded minute limit (${clientData.count}/${RATE_LIMITS.MAX_REQUESTS_PER_MINUTE})`);
+        clientData.blocked = true;
+        clientData.blockUntil = now + RATE_LIMITS.BLOCK_DURATION;
+        return res.status(429).json({ 
+            error: 'Rate limit exceeded. Blocked for 15 minutes.',
+            retryAfter: Math.ceil(RATE_LIMITS.BLOCK_DURATION / 1000)
+        });
+    }
+    
+    if (clientData.hourlyCount > RATE_LIMITS.MAX_REQUESTS_PER_HOUR) {
+        console.log(`🚨 IP ${clientIP} exceeded hourly limit (${clientData.hourlyCount}/${RATE_LIMITS.MAX_REQUESTS_PER_HOUR})`);
+        clientData.blocked = true;
+        clientData.blockUntil = now + (60 * 60 * 1000); // Block for 1 hour
+        return res.status(429).json({ 
+            error: 'Hourly limit exceeded. Please try again later.',
+            retryAfter: 3600
+        });
+    }
+    
+    console.log(`✅ IP ${clientIP} - Requests: ${clientData.count}/${RATE_LIMITS.MAX_REQUESTS_PER_MINUTE}/min, ${clientData.hourlyCount}/${RATE_LIMITS.MAX_REQUESTS_PER_HOUR}/hour`);
+    next();
+}
+
+// Message validation middleware
+function validateMessage(req, res, next) {
+    const { message } = req.body;
+    
+    if (!message || typeof message !== 'string') {
+        return res.status(400).json({ error: 'Valid message is required' });
+    }
+    
+    // Check message length
+    if (message.length > RATE_LIMITS.MAX_MESSAGE_LENGTH) {
+        console.log(`📏 Message too long: ${message.length}/${RATE_LIMITS.MAX_MESSAGE_LENGTH} chars`);
+        return res.status(400).json({ 
+            error: `Message too long. Maximum ${RATE_LIMITS.MAX_MESSAGE_LENGTH} characters allowed.` 
+        });
+    }
+    
+    // Check for suspicious patterns
+    for (const pattern of RATE_LIMITS.SUSPICIOUS_PATTERNS) {
+        if (pattern.test(message)) {
+            console.log(`🔍 Suspicious message pattern detected: ${message.substring(0, 50)}...`);
+            return res.status(400).json({ 
+                error: 'Message contains suspicious patterns. Please rephrase your question.' 
+            });
+        }
+    }
+    
+    next();
+}
+
 // Middleware
-app.use(express.json());
+app.use(express.json({ limit: '1mb' })); // Limit JSON payload size
 app.use(express.static('.'));
 
 // CORS middleware
@@ -101,10 +232,15 @@ function detectPersonalQuestion(message) {
     return personalPatterns.some(pattern => pattern.test(lowerMessage));
 }
 
-// API endpoint for chat
-app.post('/api/chat', async (req, res) => {
+// API endpoint for chat with rate limiting
+app.post('/api/chat', rateLimitMiddleware, validateMessage, async (req, res) => {
+    const startTime = Date.now();
+    const clientIP = req.ip || req.connection.remoteAddress || 'unknown';
+    
     try {
         const { message, history = [] } = req.body;
+        
+        console.log(`📝 Request from ${clientIP}: "${message.substring(0, 100)}${message.length > 100 ? '...' : ''}"`);
         
         if (!message) {
             return res.status(400).json({ error: 'Message is required' });
@@ -214,26 +350,37 @@ Keep answers short enough to be spoken aloud comfortably. Focus on being helpful
             responseSource = 'intelligent_fallback';
         }
         
-        // Generate natural voice using OpenAI TTS
+        // Generate natural voice using OpenAI TTS (with cost monitoring)
         console.log('🎤 Generating natural voice with OpenAI TTS...');
         let audioBuffer = null;
         let hasAudio = false;
         
-        try {
-            audioBuffer = await generateOpenAIVoice(finalResponse);
-            hasAudio = true;
-            console.log('✅ OpenAI TTS audio generated successfully');
-        } catch (error) {
-            console.log('⚠️ OpenAI TTS failed, using browser fallback:', error.message);
+        // Emergency brake: Check if we're generating too much TTS
+        const dailyTTSCount = getDailyTTSCount();
+        const DAILY_TTS_LIMIT = 200; // Adjust based on your budget
+        
+        if (dailyTTSCount >= DAILY_TTS_LIMIT) {
+            console.log(`🚨 Daily TTS limit reached (${dailyTTSCount}/${DAILY_TTS_LIMIT}), skipping TTS`);
+        } else {
+            try {
+                audioBuffer = await generateOpenAIVoice(finalResponse);
+                hasAudio = true;
+                incrementDailyTTSCount();
+                console.log('✅ OpenAI TTS audio generated successfully');
+            } catch (error) {
+                console.log('⚠️ OpenAI TTS failed, using browser fallback:', error.message);
+            }
         }
         
-        console.log('✅ Response ready');
+        const processingTime = Date.now() - startTime;
+        console.log(`✅ Response ready in ${processingTime}ms for IP ${clientIP}`);
         
         return res.json({ 
             response: finalResponse,
             audio: audioBuffer ? audioBuffer.toString('base64') : null,
             hasAudio: hasAudio,
-            source: responseSource + (hasAudio ? '_with_openai_tts' : '_browser_fallback')
+            source: responseSource + (hasAudio ? '_with_openai_tts' : '_browser_fallback'),
+            processingTime: processingTime
         });
         
 
@@ -1041,6 +1188,29 @@ async function getGeminiResponse(message) {
     return data.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
 }
 
+// Daily TTS usage tracking (simple in-memory counter)
+let dailyTTSData = {
+    date: new Date().toDateString(),
+    count: 0
+};
+
+function getDailyTTSCount() {
+    const today = new Date().toDateString();
+    if (dailyTTSData.date !== today) {
+        dailyTTSData = { date: today, count: 0 };
+    }
+    return dailyTTSData.count;
+}
+
+function incrementDailyTTSCount() {
+    const today = new Date().toDateString();
+    if (dailyTTSData.date !== today) {
+        dailyTTSData = { date: today, count: 0 };
+    }
+    dailyTTSData.count++;
+    console.log(`📊 Daily TTS usage: ${dailyTTSData.count}`);
+}
+
 // OpenAI TTS Generation Function
 async function generateOpenAIVoice(text) {
     const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
@@ -1076,6 +1246,26 @@ async function generateOpenAIVoice(text) {
     return Buffer.from(audioBuffer);
 }
 
+// Admin endpoint to check usage stats (add basic auth if needed)
+app.get('/admin/stats', (req, res) => {
+    const stats = {
+        timestamp: new Date().toISOString(),
+        dailyTTS: {
+            date: dailyTTSData.date,
+            count: dailyTTSData.count,
+            limit: 200
+        },
+        activeIPs: requestCounts.size,
+        blockedIPs: Array.from(requestCounts.entries())
+            .filter(([ip, data]) => data.blocked)
+            .map(([ip, data]) => ({
+                ip: ip.substring(0, 8) + '...',
+                blockedUntil: new Date(data.blockUntil).toLocaleTimeString()
+            }))
+    };
+    res.json(stats);
+});
+
 // Health check endpoint for deployment monitoring
 app.get('/health', (req, res) => {
     res.json({
@@ -1085,7 +1275,9 @@ app.get('/health', (req, res) => {
             webServer: 'running',
             aiResponse: 'ready',
             openaiTTS: process.env.OPENAI_API_KEY ? 'configured' : 'missing_key'
-        }
+        },
+        rateLimiting: 'active',
+        dailyTTSUsage: `${getDailyTTSCount()}/200`
     });
 });
 
