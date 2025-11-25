@@ -35,3 +35,6 @@ pids
 *.pid
 *.seed
 *.pid.lock
+
+# Waitlist data
+waitlist_data.json
