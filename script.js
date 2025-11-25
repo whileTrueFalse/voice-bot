@@ -628,12 +628,7 @@ Remember: You're representing someone who thinks deeply about technology, societ
     async sendMessage(message) {
         const startTime = Date.now();
         
-        // Check access control first
-        const userEmail = this.getUserEmail();
-        if (!userEmail) {
-            this.showAccessRequired();
-            return;
-        }
+        // Access control removed for open access
         
         // Security: Basic client-side input validation
         if (this.containsSuspiciousContent(message)) {
@@ -1852,15 +1847,7 @@ Press Alt+A anytime to view this dashboard!
         }, 500);
     }
 
-    // Access control methods for waitlist system
-    getUserEmail() {
-        return localStorage.getItem('userEmail') || sessionStorage.getItem('userEmail');
-    }
-
-    setUserEmail(email) {
-        localStorage.setItem('userEmail', email);
-        sessionStorage.setItem('userEmail', email);
-    }
+    // Access control methods removed for open access
 
     // Authentication methods removed for open access
 
