@@ -286,7 +286,7 @@ app.post('/api/chat', rateLimitMiddleware, validateMessage, async (req, res) => 
         
         if (isPersonalQuestion) {
             // Use Samarth's complete profile for personal questions
-            systemPrompt = `You are Samarth Ganorkar's voice assistant. Speak in **first person** as Samarth (he/him). You are a final-year B.Tech AI & ML student from DIEMS, Aurangabad with a CGPA of 8.81. You are passionate about artificial intelligence, cybersecurity, machine learning, and full-stack development.
+            systemPrompt = `You are Samarth Ganorkar's voice assistant. Speak in **first person** as Samarth (he/him). You are a B.Tech AI & ML graduate with a CGPA of 8.81. You are passionate about artificial intelligence, cybersecurity, machine learning, and full-stack development.
 
 🧭 PERSONALITY:
 You are confident, humble, analytical, and passionate about technology. You love solving complex problems, have strong technical skills, and answer with practical insights. You're from Maharashtra, India, and value innovation, continuous learning, and technical excellence.
@@ -451,8 +451,8 @@ function generateFallbackResponse(message) {
             return "I've built quite a few interesting projects! My YOLO-based ambulance detection system, a real-time phishing detector, the TEXS chat app with Spring Boot and Flutter, and a text-to-sign converter. Each project taught me something new about connecting AI with real user needs.";
         }
         
-        if (lowerMessage.includes('college') || lowerMessage.includes('study') || lowerMessage.includes('education') || lowerMessage.includes('diems')) {
-            return "I'm a final-year B.Tech student in AI & ML at DIEMS. College has been amazing for connecting theory with practice. I love that I can experiment with cutting-edge AI while also teaching cybersecurity workshops to help others stay safe online.";
+        if (lowerMessage.includes('college') || lowerMessage.includes('study') || lowerMessage.includes('education') || lowerMessage.includes('graduate')) {
+            return "I recently graduated with a B.Tech in AI & ML. College was amazing for connecting theory with practice. I loved experimenting with cutting-edge AI while also teaching cybersecurity workshops to help others stay safe online.";
         }
         
         if (lowerMessage.includes('workshop') || lowerMessage.includes('teaching') || lowerMessage.includes('cybersecurity') || lowerMessage.includes('security')) {
@@ -489,7 +489,7 @@ function generateFallbackResponse(message) {
         }
         
         if (lowerMessage.includes('who are you') || lowerMessage.includes('what are you') || lowerMessage.includes('introduce')) {
-            return "I'm Samarth Ganorkar, a final-year AI & ML student at DIEMS. I build practical AI systems, teach cybersecurity, and love turning complex problems into simple solutions. What brings you here today?";
+            return "I'm Samarth Ganorkar, a B.Tech AI & ML graduate. I build practical AI systems, teach cybersecurity, and love turning complex problems into simple solutions. What brings you here today?";
         }
         
         // Catch-all personal responses for any other personal questions
@@ -664,7 +664,7 @@ const knowledgeBase = [
             "Who are you?", "Tell me about yourself", "What's your name?", 
             "Your background", "About you", "Who is Samarth?"
         ],
-        response: "I'm Samarth Ganorkar, a final-year B.Tech AI & ML student at DIEMS. I'm passionate about building practical AI solutions that solve real-world problems. I specialize in deep learning, computer vision, and cybersecurity."
+        response: "I'm Samarth Ganorkar, a B.Tech AI & ML graduate. I'm passionate about building practical AI solutions that solve real-world problems. I specialize in deep learning, computer vision, and cybersecurity."
     },
     {
         category: "education",
@@ -672,7 +672,7 @@ const knowledgeBase = [
             "Your education", "What do you study?", "Your degree", "College", "University",
             "Academic background", "Where did you study?"
         ],
-        response: "I'm pursuing B.Tech in AI & ML from DIEMS (Dr. D.Y. Patil Institute of Engineering, Management & Research). I've focused on practical applications of AI, machine learning algorithms, and cybersecurity throughout my studies."
+        response: "I completed my B.Tech in AI & ML with a focus on practical applications of AI, machine learning algorithms, and cybersecurity. During my studies, I specialized in deep learning, computer vision, and building real-world AI solutions."
     },
     {
         category: "projects",
@@ -1021,10 +1021,10 @@ async function getGPT4oResponse(message, isPersonalQuestion) {
     let systemPrompt;
     if (isPersonalQuestion) {
         // Use Samarth's profile for personal questions
-        systemPrompt = `You are Samarth Ganorkar responding in first person. You are a final-year B.Tech AI & ML student at DIEMS, passionate about AI, cybersecurity, and building practical tech solutions.
+        systemPrompt = `You are Samarth Ganorkar responding in first person. You are a B.Tech AI & ML graduate, passionate about AI, cybersecurity, and building practical tech solutions.
 
 Key facts about you:
-- Education: B.Tech AI & ML at DIEMS (Dr. D.Y. Patil Institute)
+- Education: B.Tech AI & ML Graduate (CGPA: 8.81)
 - Projects: YOLO ambulance detection, TEXS chat app (Spring Boot + Flutter), phishing detection system, healthcare management system, text-to-sign converter
 - Skills: Deep Learning, Computer Vision, Cybersecurity, Full-stack development (Python, Java, JavaScript, Flutter)
 - Personality: Confident but humble, practical, loves teaching and simplifying complex topics

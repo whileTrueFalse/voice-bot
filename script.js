@@ -57,18 +57,21 @@ class VoiceAI {
     }
 
     initializeElements() {
+        console.log('Initializing elements...');
+        
+        // Tab elements (new structure)
+        this.tabs = document.querySelectorAll('.tab');
+        this.tabContents = document.querySelectorAll('.tab-content');
+        
         // Navigation elements
-        this.sidebarToggle = document.getElementById('sidebarToggle');
         this.sidebar = document.getElementById('sidebar');
         this.newChatBtn = document.getElementById('newChatBtn');
         this.homeNavItem = document.getElementById('homeNavItem');
         this.chatNavItem = document.getElementById('chatNavItem');
-        this.themeToggle = document.getElementById('themeToggle');
         this.showTutorialBtn = document.getElementById('showTutorialBtn');
         this.quickHelpBtn = document.getElementById('quickHelpBtn');
         
         // Page elements
-        this.homePage = document.getElementById('homePage');
         this.chatPage = document.getElementById('chatPage');
         this.startVoiceChatBtn = document.getElementById('startVoiceChatBtn');
         
@@ -84,6 +87,13 @@ class VoiceAI {
         this.sendBtn = document.getElementById('sendBtn');
         this.waveBars = document.getElementById('waveBars');
         this.waveVisualizer = document.getElementById('waveVisualizer');
+        
+        console.log('Elements found:', {
+            tabs: this.tabs.length,
+            tabContents: this.tabContents.length,
+            startVoiceChatBtn: !!this.startVoiceChatBtn,
+            voiceBtn: !!this.voiceBtn
+        });
         
         // Initialize theme
         this.currentTheme = localStorage.getItem('theme') || 'dark';
@@ -170,15 +180,41 @@ class VoiceAI {
 
         // Navigation
         if (this.startVoiceChatBtn) {
-            this.startVoiceChatBtn.addEventListener('click', () => {
-                this.showChatPage();
+            this.startVoiceChatBtn.addEventListener('click', (e) => {
+                console.log('Start voice chat button clicked');
+                e.preventDefault();
+                this.switchTab('voice');
+                // Optionally auto-start listening
+                setTimeout(() => {
+                    if (this.voiceBtn && !this.isListening) {
+                        console.log('Auto-starting voice listening...');
+                        this.startListening();
+                    }
+                }, 500);
             });
         }
 
         if (this.newChatBtn) {
             this.newChatBtn.addEventListener('click', () => {
                 this.clearChat();
-                this.showChatPage();
+                this.switchTab('voice');
+            });
+        }
+
+        // Tutorial and help buttons
+        if (this.showTutorialBtn) {
+            this.showTutorialBtn.addEventListener('click', (e) => {
+                console.log('Show tutorial clicked');
+                e.preventDefault();
+                this.showTutorial();
+            });
+        }
+
+        if (this.quickHelpBtn) {
+            this.quickHelpBtn.addEventListener('click', (e) => {
+                console.log('Quick help clicked');
+                e.preventDefault();
+                this.showQuickHelp();
             });
         }
 
@@ -245,19 +281,74 @@ class VoiceAI {
         }
     }
 
+    switchTab(tabId) {
+        console.log('Switching to tab:', tabId);
+        
+        // Remove active class from all tabs and tab contents
+        if (this.tabs) {
+            this.tabs.forEach(tab => tab.classList.remove('active'));
+        }
+        if (this.tabContents) {
+            this.tabContents.forEach(content => content.classList.remove('active'));
+        }
+        
+        // Add active class to clicked tab
+        const activeTab = document.querySelector(`[data-tab="${tabId}"]`);
+        const activeContent = document.getElementById(`${tabId}-tab`);
+        
+        if (activeTab) {
+            activeTab.classList.add('active');
+            console.log('Activated tab:', activeTab);
+        }
+        
+        if (activeContent) {
+            activeContent.classList.add('active');
+            console.log('Activated content:', activeContent);
+        }
+        
+        // Voice tab now contains the chat interface directly
+        // No need to show/hide separate chat page
+    }
+
     initializeNavigation() {
+        console.log('Initializing navigation...');
+        
+        // Tab functionality
+        if (this.tabs && this.tabs.length > 0) {
+            this.tabs.forEach(tab => {
+                tab.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const targetTab = tab.getAttribute('data-tab');
+                    console.log('Tab clicked:', targetTab);
+                    this.switchTab(targetTab);
+                });
+            });
+        }
+
         // Navigation items click handlers
         if (this.homeNavItem) {
             this.homeNavItem.addEventListener('click', () => {
-                this.showHomePage();
+                this.switchTab('general');
                 this.setActiveNavItem('home');
             });
         }
 
         if (this.chatNavItem) {
             this.chatNavItem.addEventListener('click', () => {
-                this.showChatPage();
+                this.switchTab('voice');
                 this.setActiveNavItem('chat');
+            });
+        }
+
+        if (this.helpNavItem) {
+            this.helpNavItem.addEventListener('click', () => {
+                this.showQuickHelpMenu();
+            });
+        }
+
+        if (this.settingsNavItem) {
+            this.settingsNavItem.addEventListener('click', () => {
+                this.switchTab('settings');
             });
         }
 
@@ -1606,6 +1697,12 @@ Press Alt+A anytime to view this dashboard!
     }
 
     showWelcomeTutorial() {
+        // Remove existing tutorial if present
+        const existingTutorial = document.querySelector('.tutorial-overlay');
+        if (existingTutorial) {
+            existingTutorial.remove();
+        }
+
         // Create tutorial overlay
         const tutorialOverlay = document.createElement('div');
         tutorialOverlay.className = 'tutorial-overlay';
@@ -1858,6 +1955,28 @@ Press Alt+A anytime to view this dashboard!
 
 // Initialize the application when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
+    console.log('DOM loaded, initializing Voice AI...');
     window.voiceAI = new VoiceAI();
     console.log('Voice AI Assistant initialized successfully');
+    
+    // Add additional debugging
+    setTimeout(() => {
+        console.log('Checking tab elements:');
+        const tabs = document.querySelectorAll('.tab');
+        const tabContents = document.querySelectorAll('.tab-content');
+        console.log('Found', tabs.length, 'tabs and', tabContents.length, 'tab contents');
+        
+        // Manually add click handlers as backup
+        tabs.forEach((tab, index) => {
+            console.log(`Tab ${index}:`, tab.getAttribute('data-tab'));
+            tab.style.pointerEvents = 'auto';
+            tab.addEventListener('click', function(e) {
+                e.preventDefault();
+                console.log('Tab clicked:', this.getAttribute('data-tab'));
+                if (window.voiceAI && window.voiceAI.switchTab) {
+                    window.voiceAI.switchTab(this.getAttribute('data-tab'));
+                }
+            }, true);
+        });
+    }, 100);
 });

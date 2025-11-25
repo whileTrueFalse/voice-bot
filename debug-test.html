@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug Test</title>
+</head>
+<body>
+    <div class="tab" data-tab="general">General</div>
+    <button id="start-btn" class="primary-btn">Start Voice Chat</button>
+    
+    <script>
+        console.log('Debug test loaded');
+        
+        // Test tab click
+        const tab = document.querySelector('.tab');
+        if (tab) {
+            console.log('Tab found:', tab);
+            tab.addEventListener('click', function(e) {
+                console.log('Tab clicked!', e);
+                alert('Tab works!');
+            });
+            
+            // Try manual click test
+            setTimeout(() => {
+                console.log('Manual click test...');
+                tab.click();
+            }, 1000);
+        } else {
+            console.log('Tab not found');
+        }
+        
+        // Test button click
+        const btn = document.getElementById('start-btn');
+        if (btn) {
+            console.log('Button found:', btn);
+            btn.addEventListener('click', function(e) {
+                console.log('Button clicked!', e);
+                alert('Button works!');
+            });
+        } else {
+            console.log('Button not found');
+        }
+    </script>
+</body>
+</html>

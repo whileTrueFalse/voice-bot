@@ -10,20 +10,37 @@
 </head>
 <body>
     <div class="app-container">
-        <!-- Sidebar -->
-        <aside class="sidebar" id="sidebar">
+        <!-- Terminal Header -->
+        <div class="terminal-header">
+            <div class="terminal-title">
+                <span>voice-assistant</span>
+                <span>•</span>
+                <span>samarth@terminal</span>
+            </div>
+            <div class="terminal-controls">
+                <button class="control-btn close"></button>
+                <button class="control-btn minimize"></button>
+                <button class="control-btn maximize"></button>
+            </div>
+        </div>
+        
+        <!-- Tab Bar -->
+        <div class="tab-bar">
+            <div class="tab active" data-tab="general">General</div>
+            <div class="tab" data-tab="voice">Voice</div>
+            <div class="tab" data-tab="settings">Settings</div>
+            <div class="tab" data-tab="about">About</div>
+        </div>
+        
+        <!-- Content Wrapper -->
+        <div class="content-wrapper">
+            <!-- Sidebar -->
+            <aside class="sidebar" id="sidebar">
             <div class="sidebar-header">
                 <div class="logo">
-                    <i class="fas fa-robot"></i>
-                    <span>Samerth's Voice Bot</span>
+                    <i class="fas fa-terminal"></i>
+                    <span>Navigation</span>
                 </div>
-                <button class="theme-toggle" id="themeToggle">
-                    <i class="fas fa-moon"></i>
-                    <span>Dark</span>
-                </button>
-                <button class="sidebar-toggle" id="sidebarToggle">
-                    <i class="fas fa-bars"></i>
-                </button>
             </div>
 
             <div class="sidebar-content">
@@ -36,14 +53,14 @@
                 <!-- Navigation Menu -->
                 <nav class="nav-menu">
                     <div class="nav-section">
-                        <h3>Voice Sessions</h3>
+                        <h3>Interface</h3>
                         <ul class="nav-list">
                             <li class="nav-item active" id="homeNavItem">
                                 <i class="fas fa-home"></i>
-                                <span>Welcome</span>
+                                <span>Overview</span>
                             </li>
                             <li class="nav-item" id="chatNavItem">
-                                <i class="fas fa-comments"></i>
+                                <i class="fas fa-microphone"></i>
                                 <span>Voice Chat</span>
                             </li>
                         </ul>
@@ -103,45 +120,65 @@
 
         <!-- Main Content Area -->
         <main class="main-content">
-            <!-- Home Page -->
-            <div class="content-page" id="homePage">
+            <!-- General Tab -->
+            <div class="tab-content active" id="general-tab">
                 <div class="welcome-container">
                     <div class="welcome-header">
                         <div class="ai-logo">
                             <i class="fas fa-robot"></i>
                         </div>
-                        <h1>Welcome to Samarth's AI Voice Assistant!</h1>
-                        <p class="welcome-description">🎤 <strong>Meet Samarth Ganorkar</strong> - Final-year B.Tech AI & ML student at DIEMS, Aurangabad. I'm passionate about AI, cybersecurity, and full-stack development. Chat with me about technology, programming, projects, or anything else! <br><br>✨ <em>Completely free • No registration required • Powered by advanced AI</em></p>
+                        <h1>Samarth's Voice Assistant</h1>
+                        <p>Advanced AI-powered voice assistant with real-time conversation capabilities.</p>
+                    </div>
+                    
+                    <!-- Info Box like binsider -->
+                    <div class="info-box">
+                        <div class="info-row">
+                            <span class="info-label">Developer:</span>
+                            <span class="info-value">Samarth Ganorkar</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Status:</span>
+                            <span class="info-value">B.Tech AI & ML Graduate</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Engine:</span>
+                            <span class="info-value">OpenAI GPT-4o</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Access:</span>
+                            <span class="info-value">Public • No Authentication</span>
+                        </div>
                     </div>
 
                     <div class="feature-cards">
                         <div class="feature-card">
                             <div class="feature-icon">
-                                <i class="fas fa-comments"></i>
+                                <i class="fas fa-terminal"></i>
                             </div>
-                            <h3>Chat Naturally</h3>
-                            <p>Have natural conversations just like with a friend</p>
+                            <h3>chat --interactive</h3>
+                            <p>Natural language processing with real-time responses</p>
                         </div>
                         <div class="feature-card">
                             <div class="feature-icon">
                                 <i class="fas fa-microphone"></i>
                             </div>
-                            <h3>Voice Support</h3>
-                            <p>Speak your questions and hear responses back</p>
+                            <h3>voice --recognition</h3>
+                            <p>Speech-to-text with voice synthesis output</p>
                         </div>
                         <div class="feature-card">
                             <div class="feature-icon">
-                                <i class="fas fa-lightbulb"></i>
+                                <i class="fas fa-cpu"></i>
                             </div>
-                            <h3>Smart Assistance</h3>
-                            <p>Get help with learning and problem solving</p>
+                            <h3>ai --model=gpt4o</h3>
+                            <p>Advanced neural networks for intelligent responses</p>
                         </div>
                         <div class="feature-card">
                             <div class="feature-icon">
-                                <i class="fas fa-chart-line"></i>
+                                <i class="fas fa-unlock"></i>
                             </div>
-                            <h3>Analytics Dashboard</h3>
-                            <p>Press <kbd>Alt + A</kbd> to view real-time conversation analytics and insights</p>
+                            <h3>access --public</h3>
+                            <p>Open source • No authentication • MIT Licensed</p>
                         </div>
                         <div class="feature-card">
                             <div class="feature-icon">
@@ -182,10 +219,191 @@
 
                     <div class="action-buttons">
                         <button class="primary-btn" id="startVoiceChatBtn">
-                            <i class="fas fa-microphone"></i>
-                            <span>Start Voice Chat</span>
+                            <i class="fas fa-play"></i>
+                            <span>Execute ./start</span>
                         </button>
-                        <!-- Waitlist button removed for open access -->
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Voice Tab -->
+            <div class="tab-content" id="voice-tab">
+                <!-- Chat Interface -->
+                <div class="chat-header">
+                    <div class="chat-title">
+                        <h2>Samerth's Voice Bot</h2>
+                        <span class="chat-status" id="chatStatus">Online and ready to help</span>
+                    </div>
+                    <div class="chat-actions">
+                        <button class="action-btn" id="clearChatBtn" title="Clear Chat">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                        <button class="action-btn" id="muteBtn" title="Mute/Unmute">
+                            <i class="fas fa-volume-up"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="chat-container" id="chatContainer">
+                    <div class="welcome-message">
+                        <div class="message ai-message">
+                            <div class="message-avatar">
+                                <i class="fas fa-robot"></i>
+                            </div>
+                            <div class="message-content">
+                                <div class="message-text">
+                                    Hello! I'm Samerth's Voice Bot, your AI assistant. Click the microphone to start speaking, or type your message below. I'm here to help with questions, conversations, and creative tasks!
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Voice Input Section -->
+                <div class="voice-input-area">
+                    <!-- Wave Visualizer -->
+                    <div class="wave-visualizer" id="waveVisualizer">
+                        <div class="wave-bars" id="waveBars"></div>
+                    </div>
+
+                    <!-- Input Controls -->
+                    <div class="input-controls">
+                        <button class="voice-btn" id="voiceBtn" title="Click to speak">
+                            <i class="fas fa-microphone"></i>
+                        </button>
+                        
+                        <div class="text-input-container">
+                            <input type="text" id="textInput" placeholder="Type your message or click the mic to speak..." maxlength="500">
+                            <button class="send-btn" id="sendBtn" title="Send message">
+                                <i class="fas fa-paper-plane"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Settings Tab -->
+            <div class="tab-content" id="settings-tab">
+                <div class="welcome-container">
+                    <div class="welcome-header">
+                        <div class="ai-logo">
+                            <i class="fas fa-sliders-h"></i>
+                        </div>
+                        <h1>Configuration</h1>
+                        <p>Adjust system settings and preferences for optimal performance.</p>
+                    </div>
+                    
+                    <div class="info-box">
+                        <div class="info-row">
+                            <span class="info-label">Theme:</span>
+                            <span class="info-value">Dark Mode</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Auto-Save:</span>
+                            <span class="info-value">Enabled</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Response Time:</span>
+                            <span class="info-value">Fast (~200ms)</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Privacy Mode:</span>
+                            <span class="info-value">Local Processing</span>
+                        </div>
+                    </div>
+                    
+                    <div class="feature-cards">
+                        <div class="feature-card">
+                            <div class="feature-icon">
+                                <i class="fas fa-palette"></i>
+                            </div>
+                            <h3>Interface Theme</h3>
+                            <p>Switch between dark and light themes</p>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-icon">
+                                <i class="fas fa-shield-alt"></i>
+                            </div>
+                            <h3>Privacy Settings</h3>
+                            <p>Control data collection and processing preferences</p>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-icon">
+                                <i class="fas fa-bolt"></i>
+                            </div>
+                            <h3>Performance</h3>
+                            <p>Optimize response times and resource usage</p>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-icon">
+                                <i class="fas fa-keyboard"></i>
+                            </div>
+                            <h3>Shortcuts</h3>
+                            <p>Customize keyboard shortcuts and hotkeys</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- About Tab -->
+            <div class="tab-content" id="about-tab">
+                <div class="welcome-container">
+                    <div class="welcome-header">
+                        <div class="ai-logo">
+                            <i class="fas fa-info-circle"></i>
+                        </div>
+                        <h1>About</h1>
+                        <p>Information about the voice assistant and its creator.</p>
+                    </div>
+                    
+                    <div class="info-box">
+                        <div class="info-row">
+                            <span class="info-label">Version:</span>
+                            <span class="info-value">1.0.0</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Build Date:</span>
+                            <span class="info-value">November 2025</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">License:</span>
+                            <span class="info-value">MIT</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Repository:</span>
+                            <span class="info-value">GitHub</span>
+                        </div>
+                    </div>
+                    
+                    <div class="feature-cards">
+                        <div class="feature-card">
+                            <div class="feature-icon">
+                                <i class="fas fa-graduation-cap"></i>
+                            </div>
+                            <h3>Education</h3>
+                            <p>B.Tech in AI & ML with focus on practical applications</p>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-icon">
+                                <i class="fas fa-code"></i>
+                            </div>
+                            <h3>Technologies</h3>
+                            <p>Node.js, OpenAI API, Web Speech API, Express.js</p>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-icon">
+                                <i class="fas fa-heart"></i>
+                            </div>
+                            <h3>Passion</h3>
+                            <p>AI/ML, Cybersecurity, and Full-Stack Development</p>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-icon">
+                                <i class="fas fa-rocket"></i>
+                            </div>
+                            <h3>Mission</h3>
+                            <p>Making AI accessible and useful for everyone</p>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -245,6 +463,7 @@
                 </div>
             </div>
         </main>
+        </div>
     </div>
 
     <script src="script.js"></script>
