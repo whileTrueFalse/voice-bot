@@ -299,6 +299,12 @@ function generateId() {
 
 // Send notification email to admin
 async function sendAdminNotification(application, req) {
+    // Skip email if not configured properly
+    if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS || process.env.EMAIL_PASS === 'your_gmail_app_password_here') {
+        console.log('⚠️ Email not configured, skipping notification');
+        return;
+    }
+    
     const baseUrl = req ? `${req.protocol}://${req.get('host')}` : 'https://your-app.onrender.com';
     
     const emailHtml = `
@@ -370,24 +376,30 @@ function checkAccess(req, res, next) {
 
 // API: Join waitlist
 app.post('/api/waitlist/join', rateLimitMiddleware, async (req, res) => {
+    console.log('📝 Waitlist join request received:', req.body);
+    
     try {
         const { fullName, email, useCase, reason, experience, referral } = req.body;
         
         // Validation
         if (!fullName || !email || !useCase || !reason) {
+            console.log('❌ Missing required fields:', { fullName: !!fullName, email: !!email, useCase: !!useCase, reason: !!reason });
             return res.status(400).json({ error: 'Missing required fields' });
         }
         
         if (!email.endsWith('@gmail.com')) {
+            console.log('❌ Invalid email domain:', email);
             return res.status(400).json({ error: 'Gmail address required' });
         }
         
         // Load current waitlist
+        console.log('📋 Loading waitlist data...');
         const waitlist = await loadWaitlistData();
         
         // Check if email already exists
         const existing = waitlist.find(app => app.email.toLowerCase() === email.toLowerCase());
         if (existing) {
+            console.log('❌ Email already exists:', email);
             return res.status(400).json({ error: 'Email already in waitlist' });
         }
         
@@ -404,14 +416,21 @@ app.post('/api/waitlist/join', rateLimitMiddleware, async (req, res) => {
             timestamp: new Date().toISOString()
         };
         
+        console.log('💾 Saving application to waitlist...');
         // Add to waitlist
         waitlist.push(application);
         await saveWaitlistData(waitlist);
         
-        // Send admin notification
-        await sendAdminNotification(application, req);
+        console.log('📧 Sending admin notification...');
+        // Send admin notification (don't let email failure break the submission)
+        try {
+            await sendAdminNotification(application, req);
+            console.log('✅ Email notification sent successfully');
+        } catch (emailError) {
+            console.error('⚠️ Email notification failed (but application saved):', emailError.message);
+        }
         
-        console.log(`📝 New waitlist application: ${email}`);
+        console.log(`✅ New waitlist application saved: ${email}`);
         
         res.json({ 
             success: true, 
@@ -419,8 +438,8 @@ app.post('/api/waitlist/join', rateLimitMiddleware, async (req, res) => {
         });
         
     } catch (error) {
-        console.error('Error processing waitlist application:', error);
-        res.status(500).json({ error: 'Server error processing application' });
+        console.error('❌ Error processing waitlist application:', error);
+        res.status(500).json({ error: 'Server error processing application. Please try again.' });
     }
 });
 

@@ -14,101 +14,105 @@
         }
 
         body {
-            font-family: 'Inter', sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, sans-serif;
+            background: #fafafa;
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
+            color: #1a1a1a;
+            line-height: 1.6;
         }
 
         .waitlist-container {
             background: white;
-            border-radius: 20px;
-            padding: 3rem;
-            max-width: 600px;
+            border-radius: 16px;
+            padding: 2.5rem;
+            max-width: 520px;
             width: 90%;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
-            text-align: center;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.06);
+            border: 1px solid rgba(0, 0, 0, 0.05);
         }
 
         .logo {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            background-clip: text;
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            font-size: 3rem;
-            margin-bottom: 1rem;
-        }
-
-        .waitlist-header h1 {
-            color: #2d3748;
-            font-size: 2.5rem;
-            font-weight: 700;
-            margin-bottom: 1rem;
-        }
-
-        .waitlist-header p {
-            color: #4a5568;
-            font-size: 1.1rem;
-            line-height: 1.6;
-            margin-bottom: 2rem;
-        }
-
-        .reason-box {
-            background: #f7fafc;
-            border-left: 4px solid #667eea;
-            padding: 1.5rem;
-            margin: 2rem 0;
-            text-align: left;
-            border-radius: 8px;
-        }
-
-        .reason-box h3 {
-            color: #2d3748;
-            font-size: 1.2rem;
-            font-weight: 600;
-            margin-bottom: 1rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .reason-box ul {
-            color: #4a5568;
-            line-height: 1.8;
-            padding-left: 1.5rem;
-        }
-
-        .reason-box li {
+            color: #667eea;
+            font-size: 2rem;
             margin-bottom: 0.5rem;
         }
 
+        .waitlist-header h1 {
+            color: #1a1a1a;
+            font-size: 1.75rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            letter-spacing: -0.02em;
+        }
+
+        .waitlist-header p {
+            color: #6b7280;
+            font-size: 0.95rem;
+            margin-bottom: 1.5rem;
+            font-weight: 400;
+        }
+
+        .reason-box {
+            background: #f8fafc;
+            border: 1px solid #e5e7eb;
+            padding: 1.25rem;
+            margin: 1.5rem 0;
+            text-align: left;
+            border-radius: 12px;
+        }
+
+        .reason-box h3 {
+            color: #374151;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .reason-box ul {
+            color: #6b7280;
+            line-height: 1.5;
+            padding-left: 1rem;
+            font-size: 0.85rem;
+        }
+
+        .reason-box li {
+            margin-bottom: 0.3rem;
+        }
+
         .waitlist-form {
-            margin-top: 2rem;
+            margin-top: 1.5rem;
         }
 
         .form-group {
-            margin-bottom: 1.5rem;
+            margin-bottom: 1.25rem;
             text-align: left;
         }
 
         .form-group label {
             display: block;
-            color: #2d3748;
+            color: #374151;
             font-weight: 500;
-            margin-bottom: 0.5rem;
+            margin-bottom: 0.4rem;
+            font-size: 0.9rem;
         }
 
         .form-group input,
         .form-group textarea,
         .form-group select {
             width: 100%;
-            padding: 1rem;
-            border: 2px solid #e2e8f0;
-            border-radius: 10px;
-            font-size: 1rem;
-            transition: border-color 0.3s ease;
+            padding: 0.75rem 0.875rem;
+            border: 1.5px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            transition: all 0.2s ease;
+            background: white;
+            font-family: inherit;
         }
 
         .form-group input:focus,
@@ -116,30 +120,33 @@
         .form-group select:focus {
             outline: none;
             border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.08);
         }
 
         .form-group textarea {
-            min-height: 100px;
+            min-height: 80px;
             resize: vertical;
+            line-height: 1.5;
         }
 
         .submit-btn {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #667eea;
             color: white;
             border: none;
-            padding: 1rem 2rem;
-            font-size: 1.1rem;
-            font-weight: 600;
-            border-radius: 10px;
+            padding: 0.875rem 1.5rem;
+            font-size: 0.95rem;
+            font-weight: 500;
+            border-radius: 8px;
             cursor: pointer;
-            transition: transform 0.2s ease;
+            transition: all 0.2s ease;
             width: 100%;
+            margin-top: 0.5rem;
         }
 
         .submit-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+            background: #5a67d8;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 16px rgba(102, 126, 234, 0.25);
         }
 
         .submit-btn:disabled {
@@ -150,63 +157,83 @@
 
         .success-message,
         .error-message {
-            padding: 1rem;
-            border-radius: 10px;
+            padding: 0.875rem 1rem;
+            border-radius: 8px;
             margin: 1rem 0;
             display: none;
+            font-size: 0.9rem;
         }
 
         .success-message {
-            background: #f0fff4;
-            border: 1px solid #9ae6b4;
-            color: #22543d;
+            background: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            color: #166534;
         }
 
         .error-message {
-            background: #fed7d7;
-            border: 1px solid #feb2b2;
-            color: #742a2a;
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            color: #dc2626;
         }
 
         .features-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1rem;
-            margin: 2rem 0;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 0.875rem;
+            margin: 1.5rem 0;
         }
 
         .feature-item {
-            background: #f8fafc;
-            padding: 1.5rem;
-            border-radius: 12px;
+            background: #fafafa;
+            padding: 1rem;
+            border-radius: 8px;
             text-align: center;
+            border: 1px solid #f0f0f0;
         }
 
         .feature-item i {
-            font-size: 2rem;
+            font-size: 1.5rem;
             color: #667eea;
-            margin-bottom: 1rem;
-        }
-
-        .feature-item h4 {
-            color: #2d3748;
-            font-weight: 600;
             margin-bottom: 0.5rem;
         }
 
-        .feature-item p {
-            color: #4a5568;
+        .feature-item h4 {
+            color: #374151;
+            font-weight: 500;
+            margin-bottom: 0.25rem;
             font-size: 0.9rem;
         }
 
+        .feature-item p {
+            color: #6b7280;
+            font-size: 0.8rem;
+            line-height: 1.4;
+        }
+
         @media (max-width: 768px) {
+            body {
+                padding: 1rem;
+            }
+            
             .waitlist-container {
-                padding: 2rem;
-                margin: 1rem;
+                padding: 1.5rem;
+                margin: 0;
+                border-radius: 12px;
             }
 
             .waitlist-header h1 {
-                font-size: 2rem;
+                font-size: 1.5rem;
+            }
+
+            .features-grid {
+                grid-template-columns: 1fr;
+                gap: 0.75rem;
+            }
+            
+            .form-group input,
+            .form-group textarea,
+            .form-group select {
+                font-size: 16px; /* Prevent zoom on iOS */
             }
         }
     </style>
@@ -217,111 +244,94 @@
             <div class="logo">
                 <i class="fas fa-robot"></i>
             </div>
-            <h1>Join the Waitlist</h1>
-            <p>Get early access to Samarth's advanced AI Voice Agent with premium features and unlimited conversations.</p>
+            <h1>Join Waitlist</h1>
+            <p>Request access to the AI Voice Agent. Limited spots available to ensure quality service for all users.</p>
         </div>
 
         <div class="reason-box">
-            <h3><i class="fas fa-info-circle"></i> Why the Waitlist?</h3>
+            <h3><i class="fas fa-info-circle"></i> Why waitlist?</h3>
             <ul>
-                <li><strong>Premium AI Models:</strong> We use advanced GPT-4o and specialized TTS models that cost money per request</li>
-                <li><strong>Quality Control:</strong> Limited access ensures optimal performance and response quality for all users</li>
-                <li><strong>Resource Management:</strong> Prevents API abuse and maintains service reliability</li>
-                <li><strong>Personal Touch:</strong> Samarth personally reviews each application to ensure genuine users get access</li>
-                <li><strong>Fair Usage:</strong> Helps distribute premium features equitably among interested users</li>
+                <li><strong>Premium models:</strong> Uses costly GPT-4o and TTS APIs per request</li>
+                <li><strong>Quality control:</strong> Limited access ensures optimal performance</li>
+                <li><strong>Personal review:</strong> Each application is manually reviewed</li>
+                <li><strong>Fair access:</strong> Prevents abuse and ensures availability</li>
             </ul>
         </div>
 
         <div class="features-grid">
             <div class="feature-item">
                 <i class="fas fa-brain"></i>
-                <h4>GPT-4o Intelligence</h4>
-                <p>Advanced AI responses with contextual understanding</p>
+                <h4>GPT-4o AI</h4>
+                <p>Advanced responses</p>
             </div>
             <div class="feature-item">
                 <i class="fas fa-microphone"></i>
-                <h4>Voice Interaction</h4>
-                <p>Natural speech recognition and text-to-speech</p>
+                <h4>Voice Chat</h4>
+                <p>Speech & TTS</p>
             </div>
             <div class="feature-item">
                 <i class="fas fa-shield-alt"></i>
-                <h4>Secure & Private</h4>
-                <p>Protected with rate limiting and abuse detection</p>
+                <h4>Secure</h4>
+                <p>Rate limited</p>
             </div>
             <div class="feature-item">
                 <i class="fas fa-chart-line"></i>
-                <h4>Analytics Dashboard</h4>
-                <p>Real-time conversation insights and metrics</p>
+                <h4>Analytics</h4>
+                <p>Usage insights</p>
             </div>
         </div>
 
         <form class="waitlist-form" id="waitlistForm">
             <div class="form-group">
-                <label for="fullName">Full Name *</label>
-                <input type="text" id="fullName" name="fullName" required placeholder="Enter your full name">
+                <label for="fullName">Name *</label>
+                <input type="text" id="fullName" name="fullName" required placeholder="Your full name">
             </div>
 
             <div class="form-group">
-                <label for="email">Gmail Address *</label>
-                <input type="email" id="email" name="email" required placeholder="youremail@gmail.com" pattern=".*@gmail\.com$" title="Please enter a valid Gmail address">
+                <label for="email">Gmail *</label>
+                <input type="email" id="email" name="email" required placeholder="your@gmail.com" pattern=".*@gmail\.com$" title="Gmail address required">
             </div>
 
             <div class="form-group">
-                <label for="useCase">How do you plan to use the Voice Agent? *</label>
+                <label for="useCase">Primary use case *</label>
                 <select id="useCase" name="useCase" required>
-                    <option value="">Select your primary use case</option>
+                    <option value="">Choose one</option>
                     <option value="learning">Learning & Education</option>
                     <option value="business">Business & Professional</option>
                     <option value="research">Research & Development</option>
-                    <option value="accessibility">Accessibility Needs</option>
+                    <option value="accessibility">Accessibility</option>
                     <option value="personal">Personal Assistant</option>
-                    <option value="development">Software Development</option>
+                    <option value="development">Development</option>
                     <option value="other">Other</option>
                 </select>
             </div>
 
             <div class="form-group">
-                <label for="reason">Why should you get early access? *</label>
-                <textarea id="reason" name="reason" required placeholder="Tell Samarth why you'd be a great early user. What specific problem would this solve for you? How would you use the voice agent? Be specific and genuine."></textarea>
+                <label for="reason">Why do you need access? *</label>
+                <textarea id="reason" name="reason" required placeholder="Briefly explain your use case and why you'd be a good fit for early access."></textarea>
             </div>
 
             <div class="form-group">
-                <label for="experience">Technical Experience</label>
+                <label for="experience">Experience level</label>
                 <select id="experience" name="experience">
-                    <option value="">Select your level</option>
-                    <option value="beginner">Beginner (New to AI/Tech)</option>
-                    <option value="intermediate">Intermediate (Some experience)</option>
-                    <option value="advanced">Advanced (Technical professional)</option>
-                    <option value="expert">Expert (AI/ML specialist)</option>
-                </select>
-            </div>
-
-            <div class="form-group">
-                <label for="referral">How did you hear about this project?</label>
-                <select id="referral" name="referral">
-                    <option value="">Select source</option>
-                    <option value="github">GitHub</option>
-                    <option value="linkedin">LinkedIn</option>
-                    <option value="twitter">Twitter</option>
-                    <option value="friend">Friend/Colleague</option>
-                    <option value="portfolio">Samarth's Portfolio</option>
-                    <option value="other">Other</option>
+                    <option value="">Optional</option>
+                    <option value="beginner">Beginner</option>
+                    <option value="intermediate">Intermediate</option>
+                    <option value="advanced">Advanced</option>
+                    <option value="expert">Expert</option>
                 </select>
             </div>
 
             <button type="submit" class="submit-btn" id="submitBtn">
-                <i class="fas fa-paper-plane"></i>
-                Join Waitlist
+                Request Access
             </button>
         </form>
 
         <div class="success-message" id="successMessage">
-            <i class="fas fa-check-circle"></i>
-            <strong>Success!</strong> Your waitlist application has been submitted. Samarth will review your request and contact you via email if selected.
+            <strong>Request submitted!</strong> You'll hear back via email if selected.
         </div>
 
         <div class="error-message" id="errorMessage">
-            <i class="fas fa-exclamation-circle"></i>
             <span id="errorText">Something went wrong. Please try again.</span>
         </div>
     </div>
@@ -341,7 +351,7 @@
 
             // Disable submit button
             submitBtn.disabled = true;
-            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting...';
+            submitBtn.innerHTML = 'Submitting...';
 
             // Collect form data
             const formData = {
@@ -359,11 +369,13 @@
                 errorText.textContent = 'Please use a valid Gmail address (@gmail.com)';
                 errorMessage.style.display = 'block';
                 submitBtn.disabled = false;
-                submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Join Waitlist';
+                submitBtn.innerHTML = 'Request Access';
                 return;
             }
 
             try {
+                console.log('Submitting waitlist application:', formData);
+                
                 const response = await fetch('/api/waitlist/join', {
                     method: 'POST',
                     headers: {
@@ -372,21 +384,32 @@
                     body: JSON.stringify(formData)
                 });
 
-                const result = await response.json();
-
-                if (response.ok) {
-                    successMessage.style.display = 'block';
-                    document.getElementById('waitlistForm').style.display = 'none';
-                } else {
-                    throw new Error(result.error || 'Submission failed');
+                console.log('Response status:', response.status);
+                
+                if (!response.ok) {
+                    const errorData = await response.text();
+                    console.error('Server error:', errorData);
+                    try {
+                        const errorJson = JSON.parse(errorData);
+                        throw new Error(errorJson.error || 'Submission failed');
+                    } catch (parseError) {
+                        throw new Error(`Server error (${response.status}): ${errorData}`);
+                    }
                 }
 
+                const result = await response.json();
+                console.log('Success:', result);
+
+                successMessage.style.display = 'block';
+                document.getElementById('waitlistForm').style.display = 'none';
+
             } catch (error) {
+                console.error('Form submission error:', error);
                 errorText.textContent = error.message || 'Network error. Please try again.';
                 errorMessage.style.display = 'block';
             } finally {
                 submitBtn.disabled = false;
-                submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Join Waitlist';
+                submitBtn.innerHTML = 'Request Access';
             }
         });
 
