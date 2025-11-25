@@ -1,7 +1,7 @@
 {
   "name": "ai-voice-bot",
   "version": "1.0.0",
-  "description": "Interactive AI voice bot that responds to personal questions with speech recognition and text-to-speech capabilities",
+  "description": "Free interactive AI voice bot with speech recognition and text-to-speech capabilities - open access",
   "main": "index.html",
   "scripts": {
     "start": "node server.js",
@@ -43,9 +43,6 @@
     "dotenv": "^17.2.3",
     "express": "^5.1.0",
     "node-fetch": "^2.7.0",
-    "nodemailer": "^6.9.7",
-    "bcryptjs": "^2.4.3",
-    "jsonwebtoken": "^9.0.2",
     "express-rate-limit": "^7.1.5"
   }
 }

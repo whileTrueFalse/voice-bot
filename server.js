@@ -1,9 +1,6 @@
 const express = require('express');
 const path = require('path');
 const fetch = require('node-fetch');
-const nodemailer = require('nodemailer');
-const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
 const fs = require('fs').promises;
 require('dotenv').config();
 const app = express();
@@ -140,6 +137,8 @@ function validateMessage(req, res, next) {
     next();
 }
 
+// Session configuration removed for open access
+
 // Middleware
 app.use(express.json({ limit: '1mb' })); // Limit JSON payload size
 app.use(express.static('.'));
@@ -237,295 +236,29 @@ function detectPersonalQuestion(message) {
 }
 
 // ============================================================================
-// WAITLIST SYSTEM
+// PAYMENT SYSTEM
 // ============================================================================
 
-// Email configuration
-const emailTransporter = nodemailer.createTransport({
-    host: process.env.EMAIL_HOST || 'smtp.gmail.com',
-    port: process.env.EMAIL_PORT || 587,
-    secure: false,
-    auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS
-    }
-});
+// PayPal configuration removed for open access
 
-// Waitlist data file path
-const WAITLIST_FILE = path.join(__dirname, 'waitlist_data.json');
+// Authentication code removed for open access
 
-// Approved users list (for access control)
-let approvedUsers = new Set();
+// Initialize users data
+// User management functions removed for open access
 
-// Initialize waitlist data
-async function initializeWaitlist() {
-    try {
-        const data = await fs.readFile(WAITLIST_FILE, 'utf8');
-        const waitlistData = JSON.parse(data);
-        
-        // Load approved users into memory for quick access
-        waitlistData.forEach(user => {
-            if (user.status === 'approved') {
-                approvedUsers.add(user.email.toLowerCase());
-            }
-        });
-        
-        console.log(`📋 Loaded ${waitlistData.length} waitlist entries, ${approvedUsers.size} approved users`);
-    } catch (error) {
-        console.log('📋 Creating new waitlist file...');
-        await fs.writeFile(WAITLIST_FILE, JSON.stringify([], null, 2));
-    }
-}
-
-// Load waitlist data
-async function loadWaitlistData() {
-    try {
-        const data = await fs.readFile(WAITLIST_FILE, 'utf8');
-        return JSON.parse(data);
-    } catch (error) {
-        return [];
-    }
-}
-
-// Save waitlist data
-async function saveWaitlistData(data) {
-    await fs.writeFile(WAITLIST_FILE, JSON.stringify(data, null, 2));
-}
-
-// Generate unique ID
 function generateId() {
     return Date.now().toString(36) + Math.random().toString(36).substr(2);
 }
 
-// Send notification email to admin
-async function sendAdminNotification(application, req) {
-    // Skip email if not configured properly
-    if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS || process.env.EMAIL_PASS === 'your_gmail_app_password_here') {
-        console.log('⚠️ Email not configured, skipping notification');
-        return;
-    }
-    
-    const baseUrl = req ? `${req.protocol}://${req.get('host')}` : 'https://your-app.onrender.com';
-    
-    const emailHtml = `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-            <h2 style="color: #2d3748;">New Waitlist Application</h2>
-            
-            <div style="background: #f7fafc; padding: 20px; border-radius: 8px; margin: 20px 0;">
-                <h3 style="color: #4a5568; margin-top: 0;">Applicant Details</h3>
-                <p><strong>Name:</strong> ${application.fullName}</p>
-                <p><strong>Email:</strong> ${application.email}</p>
-                <p><strong>Use Case:</strong> ${application.useCase}</p>
-                <p><strong>Experience:</strong> ${application.experience || 'Not specified'}</p>
-                <p><strong>Referral Source:</strong> ${application.referral || 'Not specified'}</p>
-                <p><strong>Applied:</strong> ${new Date(application.timestamp).toLocaleString()}</p>
-            </div>
-            
-            <div style="background: #e6fffa; padding: 20px; border-radius: 8px; margin: 20px 0;">
-                <h3 style="color: #234e52; margin-top: 0;">Why They Want Access:</h3>
-                <p style="white-space: pre-wrap;">${application.reason}</p>
-            </div>
-            
-            <p style="color: #4a5568;">
-                Review and manage this application in your admin panel: 
-                <a href="${baseUrl}/admin.html" style="color: #667eea;">Admin Panel</a>
-            </p>
-        </div>
-    `;
+// Removed authentication helper functions for open access
 
-    try {
-        await emailTransporter.sendMail({
-            from: process.env.EMAIL_FROM,
-            to: process.env.EMAIL_USER,
-            subject: `New Waitlist Application - ${application.fullName}`,
-            html: emailHtml
-        });
-        console.log(`📧 Admin notification sent for ${application.email}`);
-    } catch (error) {
-        console.error('📧 Failed to send admin notification:', error.message);
-    }
-}
-
-// Middleware to check if user has access to the main app
-function checkAccess(req, res, next) {
-    // For development, you can temporarily disable this check by setting BYPASS_WAITLIST=true in .env
-    if (process.env.BYPASS_WAITLIST === 'true') {
-        console.log('⚠️  WAITLIST BYPASSED - Development mode');
-        return next();
-    }
-
-    // Check for bypass parameter in development
-    if (req.query.bypass === 'true' && process.env.NODE_ENV !== 'production') {
-        console.log('⚠️  WAITLIST BYPASSED - Development bypass parameter');
-        return next();
-    }
-
-    const userEmail = req.headers['x-user-email'];
-    
-    if (!userEmail || !approvedUsers.has(userEmail.toLowerCase())) {
-        console.log(`🚫 Access denied for email: ${userEmail || 'none'}`);
-        return res.status(403).json({ 
-            error: 'Access denied. Please join the waitlist.',
-            waitlistUrl: '/waitlist.html'
-        });
-    }
-    
-    console.log(`✅ Access granted for: ${userEmail}`);
-    next();
-}
-
-// API: Join waitlist
-app.post('/api/waitlist/join', rateLimitMiddleware, async (req, res) => {
-    console.log('📝 Waitlist join request received:', req.body);
-    
-    try {
-        const { fullName, email, useCase, reason, experience, referral } = req.body;
-        
-        // Validation
-        if (!fullName || !email || !useCase || !reason) {
-            console.log('❌ Missing required fields:', { fullName: !!fullName, email: !!email, useCase: !!useCase, reason: !!reason });
-            return res.status(400).json({ error: 'Missing required fields' });
-        }
-        
-        if (!email.endsWith('@gmail.com')) {
-            console.log('❌ Invalid email domain:', email);
-            return res.status(400).json({ error: 'Gmail address required' });
-        }
-        
-        // Load current waitlist
-        console.log('📋 Loading waitlist data...');
-        const waitlist = await loadWaitlistData();
-        
-        // Check if email already exists
-        const existing = waitlist.find(app => app.email.toLowerCase() === email.toLowerCase());
-        if (existing) {
-            console.log('❌ Email already exists:', email);
-            return res.status(400).json({ error: 'Email already in waitlist' });
-        }
-        
-        // Create application
-        const application = {
-            id: generateId(),
-            fullName: fullName.trim(),
-            email: email.trim().toLowerCase(),
-            useCase,
-            reason: reason.trim(),
-            experience: experience || '',
-            referral: referral || '',
-            status: 'pending',
-            timestamp: new Date().toISOString()
-        };
-        
-        console.log('💾 Saving application to waitlist...');
-        // Add to waitlist
-        waitlist.push(application);
-        await saveWaitlistData(waitlist);
-        
-        console.log('📧 Sending admin notification...');
-        // Send admin notification (don't let email failure break the submission)
-        try {
-            await sendAdminNotification(application, req);
-            console.log('✅ Email notification sent successfully');
-        } catch (emailError) {
-            console.error('⚠️ Email notification failed (but application saved):', emailError.message);
-        }
-        
-        console.log(`✅ New waitlist application saved: ${email}`);
-        
-        res.json({ 
-            success: true, 
-            message: 'Application submitted successfully!' 
-        });
-        
-    } catch (error) {
-        console.error('❌ Error processing waitlist application:', error);
-        res.status(500).json({ error: 'Server error processing application. Please try again.' });
-    }
-});
-
-// Admin authentication middleware
-function authenticateAdmin(req, res, next) {
-    const token = req.headers.authorization?.replace('Bearer ', '');
-    
-    if (!token) {
-        return res.status(401).json({ error: 'No token provided' });
-    }
-    
-    try {
-        jwt.verify(token, process.env.JWT_SECRET);
-        next();
-    } catch (error) {
-        res.status(401).json({ error: 'Invalid token' });
-    }
-}
-
-// API: Admin login
-app.post('/api/admin/login', (req, res) => {
-    const { password } = req.body;
-    
-    if (password === process.env.ADMIN_PASSWORD) {
-        const token = jwt.sign({ admin: true }, process.env.JWT_SECRET, { expiresIn: '24h' });
-        res.json({ token });
-    } else {
-        res.status(401).json({ error: 'Invalid password' });
-    }
-});
-
-// API: Get all applications (admin only)
-app.get('/api/admin/applications', authenticateAdmin, async (req, res) => {
-    try {
-        const waitlist = await loadWaitlistData();
-        res.json(waitlist);
-    } catch (error) {
-        res.status(500).json({ error: 'Failed to load applications' });
-    }
-});
-
-// API: Update application status (admin only)
-app.put('/api/admin/applications/:id/status', authenticateAdmin, async (req, res) => {
-    try {
-        const { id } = req.params;
-        const { status } = req.body;
-        
-        if (!['pending', 'approved', 'rejected'].includes(status)) {
-            return res.status(400).json({ error: 'Invalid status' });
-        }
-        
-        const waitlist = await loadWaitlistData();
-        const application = waitlist.find(app => app.id === id);
-        
-        if (!application) {
-            return res.status(404).json({ error: 'Application not found' });
-        }
-        
-        const oldStatus = application.status;
-        application.status = status;
-        application.updatedAt = new Date().toISOString();
-        
-        await saveWaitlistData(waitlist);
-        
-        // Update approved users set
-        if (status === 'approved' && oldStatus !== 'approved') {
-            approvedUsers.add(application.email.toLowerCase());
-        } else if (status !== 'approved' && oldStatus === 'approved') {
-            approvedUsers.delete(application.email.toLowerCase());
-        }
-        
-        console.log(`📝 Application ${id} status changed: ${oldStatus} → ${status}`);
-        
-        res.json({ success: true });
-        
-    } catch (error) {
-        console.error('Error updating application status:', error);
-        res.status(500).json({ error: 'Server error updating status' });
-    }
-});
+// All authentication and payment routes removed for open access;
 
 // Initialize waitlist system
-initializeWaitlist();
+// Waitlist initialization removed for open access
 
 // API endpoint for chat with rate limiting (now with access control)
-app.post('/api/chat', rateLimitMiddleware, checkAccess, validateMessage, async (req, res) => {
+app.post('/api/chat', rateLimitMiddleware, validateMessage, async (req, res) => {
     const startTime = Date.now();
     const clientIP = req.ip || req.connection.remoteAddress || 'unknown';
     
@@ -1580,9 +1313,9 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
 });
 
-// Serve waitlist page
-app.get('/waitlist', (req, res) => {
-    res.sendFile(path.join(__dirname, 'waitlist.html'));
+// Serve login page
+app.get('/login', (req, res) => {
+    res.sendFile(path.join(__dirname, 'login.html'));
 });
 
 // Catch-all handler: send back index.html for any non-API routes

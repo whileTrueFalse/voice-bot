@@ -45,9 +45,6 @@ class VoiceAI {
         
         // Initialize tutorial system for new users
         this.initializeTutorialSystem();
-        
-        // Check access control
-        this.checkInitialAccess();
     }
 
     initializeAnalyticsShortcut() {
@@ -746,8 +743,7 @@ Remember: You're representing someone who thinks deeply about technology, societ
             const response = await fetch(apiEndpoint, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
-                    'X-User-Email': this.getUserEmail() || ''
+                    'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
                     message: message,
@@ -1866,163 +1862,11 @@ Press Alt+A anytime to view this dashboard!
         sessionStorage.setItem('userEmail', email);
     }
 
-    checkInitialAccess() {
-        // For development, bypass waitlist if environment variable is set
-        if (window.location.search.includes('bypass=true')) {
-            this.setUserEmail('dev@gmail.com');
-            return;
-        }
+    // Authentication methods removed for open access
 
-        const userEmail = this.getUserEmail();
-        if (!userEmail) {
-            this.showAccessRequired();
-        }
-    }
+    // Authentication UI methods removed for open access
 
-    showAccessRequired() {
-        // Hide the main interface and show waitlist option
-        const startButton = document.getElementById('startVoiceChatBtn');
-        const joinButton = document.getElementById('joinWaitlistBtn');
-        
-        if (startButton) {
-            startButton.style.display = 'none';
-            startButton.disabled = true;
-        }
-        
-        if (joinButton) {
-            joinButton.style.display = 'flex';
-            joinButton.onclick = () => {
-                window.location.href = '/waitlist.html';
-            };
-        }
-
-        // Update welcome message
-        const welcomeContainer = document.querySelector('.welcome-header p');
-        if (welcomeContainer) {
-            welcomeContainer.innerHTML = `
-                <strong>🎯 Premium AI Voice Agent</strong><br>
-                This voice agent uses advanced GPT-4o models and costs money per conversation. 
-                To ensure quality service for everyone and prevent abuse, access is currently managed through a waitlist.
-                <br><br>
-                <em>Join the waitlist to get exclusive early access!</em>
-            `;
-        }
-
-        // Show access required message in chat interface
-        setTimeout(() => {
-            this.showAccessRequiredInChat();
-        }, 1000);
-    }
-
-    showAccessRequiredInChat() {
-        const chatContainer = document.getElementById('chatContainer');
-        if (chatContainer) {
-            const accessMessage = document.createElement('div');
-            accessMessage.className = 'message ai-message access-required';
-            accessMessage.innerHTML = `
-                <div class="message-avatar">
-                    <i class="fas fa-lock"></i>
-                </div>
-                <div class="message-content">
-                    <div class="message-text">
-                        <strong>🔐 Access Required</strong><br>
-                        This AI voice agent requires approval to use. Please join our waitlist to request access.
-                        <br><br>
-                        <button onclick="window.location.href='/waitlist.html'" class="access-btn">
-                            <i class="fas fa-list-ul"></i> Join Waitlist
-                        </button>
-                    </div>
-                </div>
-            `;
-            chatContainer.appendChild(accessMessage);
-        }
-
-        // Disable input controls
-        const textInput = document.getElementById('textInput');
-        const voiceBtn = document.getElementById('voiceBtn');
-        const sendBtn = document.getElementById('sendBtn');
-
-        if (textInput) {
-            textInput.disabled = true;
-            textInput.placeholder = 'Please join the waitlist to access the voice agent...';
-        }
-        if (voiceBtn) voiceBtn.disabled = true;
-        if (sendBtn) sendBtn.disabled = true;
-    }
-
-    // ============================================================================
-    // ACCESS CONTROL METHODS
-    // ============================================================================
-
-    getUserEmail() {
-        return localStorage.getItem('userEmail');
-    }
-
-    setUserEmail(email) {
-        localStorage.setItem('userEmail', email);
-    }
-
-    showAccessRequired() {
-        this.hideThinkingAnimation();
-        
-        const accessMessage = `
-            <div style="text-align: center; padding: 2rem; background: #fff3cd; border: 2px solid #ffeaa7; border-radius: 12px; margin: 1rem 0;">
-                <h3 style="color: #6c5500; margin-bottom: 1rem;">🔐 Access Required</h3>
-                <p style="color: #6c5500; margin-bottom: 1.5rem;">
-                    This AI Voice Agent uses premium models and requires approval to prevent abuse of API costs.
-                </p>
-                <button onclick="window.voiceAI.promptForEmail()" 
-                        style="background: #667eea; color: white; border: none; padding: 1rem 2rem; border-radius: 8px; margin: 0.5rem; cursor: pointer; font-weight: 600;">
-                    Enter Access Email
-                </button>
-                <button onclick="window.location.href='/waitlist.html'" 
-                        style="background: #48bb78; color: white; border: none; padding: 1rem 2rem; border-radius: 8px; margin: 0.5rem; cursor: pointer; font-weight: 600;">
-                    Join Waitlist
-                </button>
-            </div>
-        `;
-        
-        document.getElementById('chatContainer').innerHTML = accessMessage;
-        this.updateChatStatus('Access required');
-    }
-
-    promptForEmail() {
-        const email = prompt('Enter your approved email address:');
-        if (email && email.includes('@')) {
-            this.setUserEmail(email.toLowerCase().trim());
-            location.reload(); // Reload to check access
-        }
-    }
-
-    async checkInitialAccess() {
-        const userEmail = this.getUserEmail();
-        if (!userEmail) {
-            this.showAccessRequired();
-            return false;
-        }
-
-        // Test access with a simple API call
-        try {
-            const response = await fetch('/api/chat', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-User-Email': userEmail
-                },
-                body: JSON.stringify({ message: 'test access' })
-            });
-
-            if (response.status === 403) {
-                this.showAccessRequired();
-                return false;
-            }
-
-            return true;
-        } catch (error) {
-            console.log('Access check failed:', error);
-            return true; // Allow in case of network issues
-        }
-    }
+    // Access control methods removed for open access
 }
 
 // Initialize the application when DOM is loaded
