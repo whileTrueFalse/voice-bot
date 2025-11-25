@@ -555,6 +555,57 @@ body.mobile-device .app-container {
     z-index: 1;
 }
 
+.secondary-btn {
+    background: transparent;
+    border: 2px solid var(--accent-primary);
+    border-radius: var(--radius-xl);
+    padding: var(--spacing-lg) var(--spacing-2xl);
+    color: var(--accent-primary);
+    font-weight: 600;
+    font-size: var(--text-base);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    transition: all 0.3s ease;
+    min-width: 200px;
+    justify-content: center;
+    margin-top: var(--spacing-md);
+}
+
+.secondary-btn:hover {
+    background: var(--accent-primary);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+}
+
+/* Access Control Styling */
+.access-required {
+    border-left: 4px solid var(--accent-primary) !important;
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1)) !important;
+}
+
+.access-btn {
+    background: linear-gradient(135deg, var(--accent-primary), var(--purple-primary));
+    color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: var(--radius-lg);
+    font-weight: 600;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 1rem;
+    transition: all 0.3s ease;
+}
+
+.access-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+}
+
 /* ============ CHAT INTERFACE ============ */
 
 .chat-header {

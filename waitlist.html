@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Join Waitlist - Samarth's AI Voice Agent</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .waitlist-container {
+            background: white;
+            border-radius: 20px;
+            padding: 3rem;
+            max-width: 600px;
+            width: 90%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .logo {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .waitlist-header h1 {
+            color: #2d3748;
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .waitlist-header p {
+            color: #4a5568;
+            font-size: 1.1rem;
+            line-height: 1.6;
+            margin-bottom: 2rem;
+        }
+
+        .reason-box {
+            background: #f7fafc;
+            border-left: 4px solid #667eea;
+            padding: 1.5rem;
+            margin: 2rem 0;
+            text-align: left;
+            border-radius: 8px;
+        }
+
+        .reason-box h3 {
+            color: #2d3748;
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .reason-box ul {
+            color: #4a5568;
+            line-height: 1.8;
+            padding-left: 1.5rem;
+        }
+
+        .reason-box li {
+            margin-bottom: 0.5rem;
+        }
+
+        .waitlist-form {
+            margin-top: 2rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+            text-align: left;
+        }
+
+        .form-group label {
+            display: block;
+            color: #2d3748;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .form-group textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .submit-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+            width: 100%;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+        }
+
+        .submit-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .success-message,
+        .error-message {
+            padding: 1rem;
+            border-radius: 10px;
+            margin: 1rem 0;
+            display: none;
+        }
+
+        .success-message {
+            background: #f0fff4;
+            border: 1px solid #9ae6b4;
+            color: #22543d;
+        }
+
+        .error-message {
+            background: #fed7d7;
+            border: 1px solid #feb2b2;
+            color: #742a2a;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+
+        .feature-item {
+            background: #f8fafc;
+            padding: 1.5rem;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .feature-item i {
+            font-size: 2rem;
+            color: #667eea;
+            margin-bottom: 1rem;
+        }
+
+        .feature-item h4 {
+            color: #2d3748;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .feature-item p {
+            color: #4a5568;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            .waitlist-container {
+                padding: 2rem;
+                margin: 1rem;
+            }
+
+            .waitlist-header h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="waitlist-container">
+        <div class="waitlist-header">
+            <div class="logo">
+                <i class="fas fa-robot"></i>
+            </div>
+            <h1>Join the Waitlist</h1>
+            <p>Get early access to Samarth's advanced AI Voice Agent with premium features and unlimited conversations.</p>
+        </div>
+
+        <div class="reason-box">
+            <h3><i class="fas fa-info-circle"></i> Why the Waitlist?</h3>
+            <ul>
+                <li><strong>Premium AI Models:</strong> We use advanced GPT-4o and specialized TTS models that cost money per request</li>
+                <li><strong>Quality Control:</strong> Limited access ensures optimal performance and response quality for all users</li>
+                <li><strong>Resource Management:</strong> Prevents API abuse and maintains service reliability</li>
+                <li><strong>Personal Touch:</strong> Samarth personally reviews each application to ensure genuine users get access</li>
+                <li><strong>Fair Usage:</strong> Helps distribute premium features equitably among interested users</li>
+            </ul>
+        </div>
+
+        <div class="features-grid">
+            <div class="feature-item">
+                <i class="fas fa-brain"></i>
+                <h4>GPT-4o Intelligence</h4>
+                <p>Advanced AI responses with contextual understanding</p>
+            </div>
+            <div class="feature-item">
+                <i class="fas fa-microphone"></i>
+                <h4>Voice Interaction</h4>
+                <p>Natural speech recognition and text-to-speech</p>
+            </div>
+            <div class="feature-item">
+                <i class="fas fa-shield-alt"></i>
+                <h4>Secure & Private</h4>
+                <p>Protected with rate limiting and abuse detection</p>
+            </div>
+            <div class="feature-item">
+                <i class="fas fa-chart-line"></i>
+                <h4>Analytics Dashboard</h4>
+                <p>Real-time conversation insights and metrics</p>
+            </div>
+        </div>
+
+        <form class="waitlist-form" id="waitlistForm">
+            <div class="form-group">
+                <label for="fullName">Full Name *</label>
+                <input type="text" id="fullName" name="fullName" required placeholder="Enter your full name">
+            </div>
+
+            <div class="form-group">
+                <label for="email">Gmail Address *</label>
+                <input type="email" id="email" name="email" required placeholder="youremail@gmail.com" pattern=".*@gmail\.com$" title="Please enter a valid Gmail address">
+            </div>
+
+            <div class="form-group">
+                <label for="useCase">How do you plan to use the Voice Agent? *</label>
+                <select id="useCase" name="useCase" required>
+                    <option value="">Select your primary use case</option>
+                    <option value="learning">Learning & Education</option>
+                    <option value="business">Business & Professional</option>
+                    <option value="research">Research & Development</option>
+                    <option value="accessibility">Accessibility Needs</option>
+                    <option value="personal">Personal Assistant</option>
+                    <option value="development">Software Development</option>
+                    <option value="other">Other</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="reason">Why should you get early access? *</label>
+                <textarea id="reason" name="reason" required placeholder="Tell Samarth why you'd be a great early user. What specific problem would this solve for you? How would you use the voice agent? Be specific and genuine."></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="experience">Technical Experience</label>
+                <select id="experience" name="experience">
+                    <option value="">Select your level</option>
+                    <option value="beginner">Beginner (New to AI/Tech)</option>
+                    <option value="intermediate">Intermediate (Some experience)</option>
+                    <option value="advanced">Advanced (Technical professional)</option>
+                    <option value="expert">Expert (AI/ML specialist)</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="referral">How did you hear about this project?</label>
+                <select id="referral" name="referral">
+                    <option value="">Select source</option>
+                    <option value="github">GitHub</option>
+                    <option value="linkedin">LinkedIn</option>
+                    <option value="twitter">Twitter</option>
+                    <option value="friend">Friend/Colleague</option>
+                    <option value="portfolio">Samarth's Portfolio</option>
+                    <option value="other">Other</option>
+                </select>
+            </div>
+
+            <button type="submit" class="submit-btn" id="submitBtn">
+                <i class="fas fa-paper-plane"></i>
+                Join Waitlist
+            </button>
+        </form>
+
+        <div class="success-message" id="successMessage">
+            <i class="fas fa-check-circle"></i>
+            <strong>Success!</strong> Your waitlist application has been submitted. Samarth will review your request and contact you via email if selected.
+        </div>
+
+        <div class="error-message" id="errorMessage">
+            <i class="fas fa-exclamation-circle"></i>
+            <span id="errorText">Something went wrong. Please try again.</span>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('waitlistForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const submitBtn = document.getElementById('submitBtn');
+            const successMessage = document.getElementById('successMessage');
+            const errorMessage = document.getElementById('errorMessage');
+            const errorText = document.getElementById('errorText');
+
+            // Hide previous messages
+            successMessage.style.display = 'none';
+            errorMessage.style.display = 'none';
+
+            // Disable submit button
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting...';
+
+            // Collect form data
+            const formData = {
+                fullName: document.getElementById('fullName').value.trim(),
+                email: document.getElementById('email').value.trim(),
+                useCase: document.getElementById('useCase').value,
+                reason: document.getElementById('reason').value.trim(),
+                experience: document.getElementById('experience').value,
+                referral: document.getElementById('referral').value,
+                timestamp: new Date().toISOString()
+            };
+
+            // Validate Gmail
+            if (!formData.email.endsWith('@gmail.com')) {
+                errorText.textContent = 'Please use a valid Gmail address (@gmail.com)';
+                errorMessage.style.display = 'block';
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Join Waitlist';
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/waitlist/join', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    successMessage.style.display = 'block';
+                    document.getElementById('waitlistForm').style.display = 'none';
+                } else {
+                    throw new Error(result.error || 'Submission failed');
+                }
+
+            } catch (error) {
+                errorText.textContent = error.message || 'Network error. Please try again.';
+                errorMessage.style.display = 'block';
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Join Waitlist';
+            }
+        });
+
+        // Real-time Gmail validation
+        document.getElementById('email').addEventListener('input', function() {
+            const email = this.value;
+            if (email && !email.endsWith('@gmail.com')) {
+                this.setCustomValidity('Please enter a Gmail address');
+            } else {
+                this.setCustomValidity('');
+            }
+        });
+    </script>
+</body>
+</html>
